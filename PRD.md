@@ -1,10 +1,10 @@
-# PRD — Marcenaria Digital 3D
+# PRD — Marcenaria Digital
 
 ## 1. Visão do Produto
 Este sistema foi idealizado a partir de uma necessidade prática relacionada à marcenaria como hobby. Nas horas vagas, sempre que possível, construo móveis sob medida para uso particular. Uma das primeiras tarefas desse processo é elaborar o plano de corte das peças que serão utilizadas no móvel.
 Sem o sistema, esse processo é realizado manualmente, com papel e caneta e com isso sujeitos a erros de calculo.
 
-O **Marcenaria Digital 3D** é um sistema para auxiliar na elaboração do plano de corte, na configuração de um layout de acordo com o tipo e o estilo do móvel selecionado, na visualização do móvel em 2D e 3D e na impressão do plano de corte e do manual de montagem.
+O **Marcenaria Digital** é um sistema para auxiliar na elaboração do plano de corte, na configuração de um layout de acordo com o tipo e o estilo do móvel selecionado, na visualização do móvel em 2D e 3D e na impressão do plano de corte e do manual de montagem.
 
 O usuário informa as dimensões e características do móvel desejado e o sistema calcula automaticamente as peças necessárias para sua construção, gerando: **plano de corte**, **lista de materiais**, **visualização do móvel em 2D e 3D** e **manual de montagem**.
 
@@ -707,18 +707,18 @@ exportação. A organização abaixo considera um repositório único para o bac
 o frontend e os recursos de execução local.
 
 Para o backend Python será utilizado o padrão **src layout**. O pacote importável
-será chamado `marcenaria_digital_3d`, enquanto o diretório raiz do repositório poderá
-manter o nome `marcenaria_digital_3d`.
+será chamado `api_marcenaria_digital`, enquanto o diretório raiz do repositório poderá
+manter o nome `marcenaria_digital`.
 
 ## 9.1 Estrutura de diretórios
 
 ```text
-marcenaria-digital-3d/
+marcenaria-digital/
 ├── backend/
 │   ├── pyproject.toml
 │   ├── alembic.ini                                      [Fase 8]
 │   ├── src/
-│   │   └── marcenaria_3d/
+│   │   └── marcenaria/
 │   │       ├── __init__.py
 │   │       ├── domain/
 │   │       │   ├── entities/
