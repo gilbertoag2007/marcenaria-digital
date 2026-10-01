@@ -1,0 +1,43 @@
+{
+  "spec": "fase-1-requisitos",
+  "versao": 1,
+  "fase": 1,
+  "objetivo": "Modelar, validar, gravar e recuperar configurações reutilizáveis de estilos de armário.",
+  "escopo": {
+    "inclui": [
+      "backend FastAPI",
+      "modelo de configuração e detalhes",
+      "validação de dados e relações espaciais",
+      "criação de configuração pela API",
+      "persistência e recuperação em arquivo JSON"
+    ],
+    "nao_inclui": [
+      "frontend",
+      "cálculo de móveis e peças",
+      "endpoints públicos de consulta",
+      "banco de dados"
+    ]
+  },
+  "requisitos_funcionais": [
+    {
+      "id": "RF01",
+      "descricao": "Permitir definir configurações de armário com compartimentos, portas, ocupações percentuais e relações espaciais."
+    },
+    {
+      "id": "RF02",
+      "descricao": "Rejeitar configurações incompletas, inconsistentes ou com relações espaciais inválidas e informar os erros encontrados."
+    },
+    {
+      "id": "RF03",
+      "descricao": "Gravar e recuperar configurações em um arquivo JSON versionado dentro do projeto."
+    }
+  ],
+  "restricoes": [
+    "O único tipo de móvel permitido é ARMARIO.",
+    "Os estilos permitidos são MULTIUSO, GUARDA_ROUPA e ARMARIO_AEREO.",
+    "Cada configuração deve possuir identificador único.",
+    "O arquivo JSON é a fonte de verdade e deve permanecer válido após qualquer tentativa de gravação.",
+    "A solução não deve depender de banco de dados.",
+    "As regras de negócio não podem ser implementadas nas rotas HTTP."
+  ]
+}

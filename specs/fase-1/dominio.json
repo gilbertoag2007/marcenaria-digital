@@ -1,0 +1,52 @@
+{
+  "spec": "fase-1-dominio",
+  "versao": 1,
+  "fase": 1,
+  "entidades": {
+    "Configuracao": {
+      "campos": {
+        "id": "int positivo",
+        "tipo": "TipoMovel",
+        "estilo": "EstiloMovel",
+        "ativo": "bool",
+        "detalhes": "list[DetalheConfiguracao] com ao menos um item"
+      }
+    },
+    "DetalheConfiguracao": {
+      "campos": {
+        "id": "int positivo",
+        "tipo": "TipoConfiguracao",
+        "percentual_ocupacao_vertical": "float maior que 0 e menor ou igual a 100",
+        "percentual_ocupacao_horizontal": "float maior que 0 e menor ou igual a 100",
+        "em_cima_de_id": "int positivo ou null",
+        "embaixo_de_id": "int positivo ou null",
+        "a_direita_de_id": "int positivo ou null",
+        "a_esquerda_de_id": "int positivo ou null"
+      },
+      "observacao": "As referências por id representam outros detalhes da mesma configuração; a referência inversa para Configuracao é determinada pelo aninhamento."
+    }
+  },
+  "enums": {
+    "TipoMovel": [
+      "ARMARIO"
+    ],
+    "EstiloMovel": [
+      "MULTIUSO",
+      "GUARDA_ROUPA",
+      "ARMARIO_AEREO"
+    ],
+    "TipoConfiguracao": [
+      "COMPARTIMENTO",
+      "PORTA"
+    ]
+  },
+  "invariantes": [
+    "O id da configuração deve ser único no arquivo.",
+    "Os ids dos detalhes devem ser únicos dentro da configuração.",
+    "Toda referência espacial deve apontar para um detalhe existente na mesma configuração.",
+    "Um detalhe não pode referenciar a si próprio.",
+    "Um detalhe não pode estar simultaneamente acima e abaixo, nem à direita e à esquerda, do mesmo detalhe.",
+    "As relações espaciais não podem formar ciclos no eixo vertical nem no eixo horizontal.",
+    "Quando duas relações inversas forem informadas, elas devem ser coerentes entre si."
+  ]
+}

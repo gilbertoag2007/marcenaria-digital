@@ -1,0 +1,71 @@
+{
+  "spec": "fase-1-api",
+  "versao": 1,
+  "fase": 1,
+  "base_path": "/api/v1",
+  "endpoints": [
+    {
+      "metodo": "POST",
+      "caminho": "/configuracoes",
+      "objetivo": "Validar e persistir uma nova configuração.",
+      "request": {
+        "content_type": "application/json",
+        "body": {
+          "id": "int positivo",
+          "tipo": "ARMARIO",
+          "estilo": "MULTIUSO | GUARDA_ROUPA | ARMARIO_AEREO",
+          "ativo": "bool",
+          "detalhes": [
+            {
+              "id": "int positivo",
+              "tipo": "COMPARTIMENTO | PORTA",
+              "percentual_ocupacao_vertical": "float entre 0 exclusivo e 100 inclusivo",
+              "percentual_ocupacao_horizontal": "float entre 0 exclusivo e 100 inclusivo",
+              "em_cima_de_id": "int positivo ou null",
+              "embaixo_de_id": "int positivo ou null",
+              "a_direita_de_id": "int positivo ou null",
+              "a_esquerda_de_id": "int positivo ou null"
+            }
+          ]
+        }
+      },
+      "responses": {
+        "201": {
+          "descricao": "Configuração criada.",
+          "body": "A configuração persistida no mesmo formato do request."
+        },
+        "409": {
+          "descricao": "Já existe uma configuração com o id informado.",
+          "body": {
+            "erro": "configuracao_duplicada",
+            "mensagem": "string"
+          }
+        },
+        "422": {
+          "descricao": "A configuração é inválida.",
+          "body": {
+            "erro": "configuracao_invalida",
+            "detalhes": [
+              {
+                "campo": "string",
+                "mensagem": "string"
+              }
+            ]
+          }
+        },
+        "500": {
+          "descricao": "Falha inesperada de persistência sem exposição de detalhes internos.",
+          "body": {
+            "erro": "falha_persistencia",
+            "mensagem": "string"
+          }
+        }
+      }
+    }
+  ],
+  "regras": [
+    "Nenhum dado deve ser gravado quando a validação falhar.",
+    "O contrato deve constar na documentação OpenAPI gerada pelo FastAPI.",
+    "A rota deve apenas adaptar HTTP e chamar a operação da aplicação."
+  ]
+}

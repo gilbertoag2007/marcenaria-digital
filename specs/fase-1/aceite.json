@@ -1,0 +1,55 @@
+{
+  "spec": "fase-1-aceite",
+  "versao": 1,
+  "fase": 1,
+  "cenarios": [
+    {
+      "id": "AC01",
+      "dado": "um payload válido e um id ainda não utilizado",
+      "quando": "POST /api/v1/configuracoes for executado",
+      "entao": "a API responde 201 e a configuração é gravada no JSON"
+    },
+    {
+      "id": "AC02",
+      "dado": "uma configuração válida persistida",
+      "quando": "ela for recuperada pelo repositório",
+      "entao": "todos os seus dados são iguais aos dados gravados"
+    },
+    {
+      "id": "AC03",
+      "dado": "uma configuração incompleta ou com percentual inválido",
+      "quando": "a criação for solicitada",
+      "entao": "a API responde 422 com os campos inválidos e o arquivo não é alterado"
+    },
+    {
+      "id": "AC04",
+      "dado": "uma configuração com referência inexistente, contraditória ou cíclica",
+      "quando": "a criação for solicitada",
+      "entao": "a API responde 422 com mensagem identificável e o arquivo não é alterado"
+    },
+    {
+      "id": "AC05",
+      "dado": "uma configuração cujo id já existe",
+      "quando": "a criação for solicitada",
+      "entao": "a API responde 409 e não duplica a configuração"
+    },
+    {
+      "id": "AC06",
+      "dado": "uma falha durante a substituição do arquivo",
+      "quando": "a persistência for interrompida",
+      "entao": "o arquivo original permanece íntegro e contém JSON válido"
+    },
+    {
+      "id": "AC07",
+      "dado": "o ambiente da Fase 1 sem banco de dados",
+      "quando": "os testes de domínio, API e repositório forem executados",
+      "entao": "todos são concluídos com sucesso sem conexão externa"
+    },
+    {
+      "id": "AC08",
+      "dado": "a aplicação em execução",
+      "quando": "a documentação OpenAPI for consultada",
+      "entao": "o endpoint POST /api/v1/configuracoes e seus contratos estão documentados"
+    }
+  ]
+}

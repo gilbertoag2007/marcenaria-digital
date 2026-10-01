@@ -707,25 +707,25 @@ exportação. A organização abaixo considera um repositório único para o bac
 o frontend e os recursos de execução local.
 
 Para o backend Python será utilizado o padrão **src layout**. O pacote importável
-será chamado `api_marcenaria_digital`, enquanto o diretório raiz do repositório poderá
-manter o nome `marcenaria_digital`.
+será chamado `marcenaria_digital_api`, enquanto o diretório raiz do repositório
+poderá manter o nome `marcenaria_digital`.
 
 ## 9.1 Estrutura de diretórios
 
 ```text
-marcenaria-digital/
-├── backend/
+marcenaria-digital/                                     [Fase 1]
+├── backend/                                            [Fase 1]
 │   ├── pyproject.toml
-│   ├── alembic.ini                                      [Fase 8]
-│   ├── src/
-│   │   └── marcenaria/
+│   ├── alembic.ini
+│   ├── src/                                            [Fase 1]
+│   │   └── marcenaria_digital_api/                     [Fase 1]
 │   │       ├── __init__.py
-│   │       ├── domain/
-│   │       │   ├── entities/
-│   │       │   │   ├── configuracao/
+│   │       ├── domain/                                 [Fase 1]
+│   │       │   ├── entities/                           [Fase 1]
+│   │       │   │   ├── configuracao/                   [Fase 1]
 │   │       │   │   │   ├── configuracao.py
 │   │       │   │   │   ├── detalhes_configuracao.py
-│   │       │   │   ├── movel/
+│   │       │   │   ├── movel/                         [Fase 3]
 │   │       │   │   │   ├── movel.py
 │   │       │   │   │   ├── componente.py
 │   │       │   │   │   ├── material.py
@@ -735,10 +735,10 @@ marcenaria-digital/
 │   │       │   │   │   ├── estrutura.py
 │   │       │   │   │   ├── porta.py
 │   │       │   │   │   └── armario.py
-│   │       │   ├── value_objects/
+│   │       │   ├── value_objects/                      [Fase 3]
 │   │       │   │   ├── dimensao.py
 │   │       │   │   └── posicao_3d.py
-│   │       │   ├── enums/
+│   │       │   ├── enums/                              [Fase 1]
 │   │       │   │   ├── tipo_movel.py
 │   │       │   │   ├── finalidade.py
 │   │       │   │   ├── ordenacao_horizontal.py
@@ -746,42 +746,49 @@ marcenaria-digital/
 │   │       │   │   ├── tipo_material.py
 │   │       │   │   ├── estilo_movel.py
 │   │       │   │   └── ordenacao_vertical.py
-│   │       │   ├── services/
+│   │       │   ├── services/                           [Fase 1]
 │   │       │   │   ├── configuracao_movel.py
 │   │       │   │   ├── validacao.py
 │   │       │   │   ├── calculo_pecas.py
-│   │       │   └── exceptions/
+│   │       │   └── exceptions/                         [Fase 1]
 │   │       │       └── configuracao_exception.py
 │   │       │       └── movel_exception.py
-│   │       ├── application/
-│   │       │   ├── dto/
+│   │       ├── application/                            [Fase 1]
+│   │       │   ├── dto/                                [Fase 1]
 │   │       │   │   ├── armario_input.py
 │   │       │   │   ├── armario_output.py
 │   │       │   │   ├── configuracao_input.py
 │   │       │   │   ├── configuracao_output.py
-│   │       ├── infrastructure/
-│   │       │   ├── persistence/
+│   │       ├── infrastructure/                         [Fase 1]
+│   │       │   ├── persistence/                        [Fase 1]
 │   │       │   │   ├── json/                           [Fase 1]
 │   │       │   │   │   ├── configuracoes.json
 │   │       │   │   │   └── configuracao_repository.py
-│   │       │   │   └── database/                       [Fases 8 e 9]
+│   │       │   │   └── database/                       [Fase 8]
 │   │       │   │       ├── database.py
 │   │       │   │       ├── models.py
 │   │       │   │       └── repositories.py
-│   │       │   └── documents/
-│   │       │       ├── gerador_documento_fabricacao.py [Fase 10]
-│   │       │       └── gerador_manual_montagem.py      [Fase 11]
-│   │       ├── presentation/
-│   │       │   └── api/
+│   │       │   └── documents/                          [Fase 10]
+│   │       │       ├── gerador_documento_fabricacao.py
+│   │       │       └── gerador_manual_montagem.py
+│   │       ├── presentation/                           [Fase 1]
+│   │       │   └── api/                                [Fase 1]
 │   │       │       ├── main.py
-│   │       │       ├── routes/
+│   │       │       ├── routes/                         [Fase 1]
 │   │       │       │   ├── armario.py
 │   │       │       │   └── configuracao.py
 │   │       │       └── exception_handlers.py
 │   │       └── config.py
 │   └── Dockerfile
-├── frontend/
-│   ├── src/
+├── specs/                                              [Fase 1]
+│   └── fase-1/                                         [Fase 1]
+│       ├── requisitos.json
+│       ├── dominio.json
+│       ├── api.json
+│       ├── persistencia.json
+│       └── aceite.json
+├── frontend/                                           [Fase 2]
+│   ├── src/                                            [Fase 2]
 │   └── Dockerfile
 ├── .env.example
 ├── compose.yaml
@@ -792,7 +799,12 @@ marcenaria-digital/
 Os arquivos `__init__.py` dos subpacotes foram omitidos da árvore para facilitar
 a leitura, mas deverão existir nos diretórios Python importáveis.
 
-Os marcadores identificam a primeira fase em que cada elemento será necessário.
+Os marcadores são aplicados exclusivamente aos diretórios e identificam a
+primeira fase em que cada um deverá ser criado. Arquivos e classes não recebem
+marcadores, ainda que sejam necessários apenas em fases posteriores.
+As especificações SDD serão mantidas em `specs/`, separadas por fase. Cada
+diretório de fase deverá conter somente as especificações do respectivo escopo,
+em arquivos JSON objetivos e versionados.
 Na Fase 1 será criado apenas o adaptador JSON de configurações. O Alembic e a
 persistência em banco serão adicionados na Fase 8 para as configurações e
 ampliados na Fase 9 para os móveis. Os adaptadores de documentos serão criados

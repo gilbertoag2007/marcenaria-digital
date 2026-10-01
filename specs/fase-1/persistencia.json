@@ -1,0 +1,33 @@
+{
+  "spec": "fase-1-persistencia",
+  "versao": 1,
+  "fase": 1,
+  "arquivo": "backend/src/marcenaria_digital_api/infrastructure/persistence/json/configuracoes.json",
+  "formato": {
+    "encoding": "UTF-8",
+    "estrutura": {
+      "versao": 1,
+      "configuracoes": "list[Configuracao]"
+    }
+  },
+  "operacoes_requeridas": [
+    {
+      "nome": "adicionar",
+      "entrada": "Configuracao válida e com id ainda não utilizado",
+      "saida": "Configuracao persistida"
+    },
+    {
+      "nome": "obter_por_id",
+      "entrada": "id da configuração",
+      "saida": "Configuracao correspondente ou null"
+    }
+  ],
+  "regras": [
+    "Validar a estrutura completa do arquivo antes de utilizar seus dados.",
+    "Serializar e desserializar sem perda de dados.",
+    "Gravar primeiro em arquivo temporário no mesmo diretório e substituir o arquivo original atomicamente.",
+    "Em caso de falha, preservar o conteúdo original como JSON válido.",
+    "Impedir gravações concorrentes que causem perda de atualização.",
+    "Não utilizar banco de dados."
+  ]
+}
