@@ -1,14 +1,17 @@
 # Python
 __pycache__/
 *.py[cod]
+*.egg-info/
 
 # Ambiente virtual local
 .venv/
 
 # Cache de testes
 .pytest_cache/
+*.lock
 
 # Configuracoes locais e segredos
 .env
 .env.*
 !.env.example
+*.pyc

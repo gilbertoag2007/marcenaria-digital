@@ -701,10 +701,11 @@ peça.
 
 # 9. Arquitetura
 
-O projeto deverá adotar **Clean Architecture**, com o domínio e os casos de uso
-independentes de frameworks web, banco de dados, renderização 3D e mecanismos de
-exportação. A organização abaixo considera um repositório único para o backend,
-o frontend e os recursos de execução local.
+O projeto deverá adotar uma **Arquitetura em Camadas**, utilizando o padrão
+**Route-Service-Repository**. O backend será organizado nas camadas `routes`,
+`services`, `entities` e `repositories`, com responsabilidades explícitas e um
+fluxo simples de dependências. A organização abaixo considera um repositório
+único para o backend, o frontend e os recursos de execução local.
 
 Para o backend Python será utilizado o padrão **src layout**. O pacote importável
 será chamado `marcenaria_digital_api`, enquanto o diretório raiz do repositório
@@ -720,64 +721,57 @@ marcenaria-digital/                                     [Fase 1]
 │   ├── src/                                            [Fase 1]
 │   │   └── marcenaria_digital_api/                     [Fase 1]
 │   │       ├── __init__.py
-│   │       ├── domain/                                 [Fase 1]
-│   │       │   ├── entities/                           [Fase 1]
-│   │       │   │   ├── configuracao/                   [Fase 1]
-│   │       │   │   │   ├── configuracao.py
-│   │       │   │   │   ├── detalhes_configuracao.py
-│   │       │   │   ├── movel/                         [Fase 3]
-│   │       │   │   │   ├── movel.py
-│   │       │   │   │   ├── componente.py
-│   │       │   │   │   ├── material.py
-│   │       │   │   │   ├── peca.py
-│   │       │   │   │   ├── compartimento.py
-│   │       │   │   │   ├── gaveta.py
-│   │       │   │   │   ├── estrutura.py
-│   │       │   │   │   ├── porta.py
-│   │       │   │   │   └── armario.py
+│   │       ├── entities/                               [Fase 1]
+│   │       │   ├── configuracao/                       [Fase 1]
+│   │       │   │   ├── configuracao.py
+│   │       │   │   └── detalhes_configuracao.py
+│   │       │   ├── movel/                              [Fase 3]
+│   │       │   │   ├── movel.py
+│   │       │   │   ├── componente.py
+│   │       │   │   ├── material.py
+│   │       │   │   ├── peca.py
+│   │       │   │   ├── compartimento.py
+│   │       │   │   ├── gaveta.py
+│   │       │   │   ├── estrutura.py
+│   │       │   │   ├── porta.py
+│   │       │   │   └── armario.py
 │   │       │   ├── value_objects/                      [Fase 3]
 │   │       │   │   ├── dimensao.py
 │   │       │   │   └── posicao_3d.py
-│   │       │   ├── enums/                              [Fase 1]
-│   │       │   │   ├── tipo_movel.py
-│   │       │   │   ├── finalidade.py
-│   │       │   │   ├── ordenacao_horizontal.py
-│   │       │   │   ├── conteudo.py
-│   │       │   │   ├── tipo_material.py
-│   │       │   │   ├── estilo_movel.py
-│   │       │   │   └── ordenacao_vertical.py
-│   │       │   ├── services/                           [Fase 1]
-│   │       │   │   ├── configuracao_movel.py
-│   │       │   │   ├── validacao.py
-│   │       │   │   ├── calculo_pecas.py
-│   │       │   └── exceptions/                         [Fase 1]
-│   │       │       └── configuracao_exception.py
-│   │       │       └── movel_exception.py
-│   │       ├── application/                            [Fase 1]
-│   │       │   ├── dto/                                [Fase 1]
-│   │       │   │   ├── armario_input.py
-│   │       │   │   ├── armario_output.py
-│   │       │   │   ├── configuracao_input.py
-│   │       │   │   ├── configuracao_output.py
-│   │       ├── infrastructure/                         [Fase 1]
-│   │       │   ├── persistence/                        [Fase 1]
-│   │       │   │   ├── json/                           [Fase 1]
-│   │       │   │   │   ├── configuracoes.json
-│   │       │   │   │   └── configuracao_repository.py
-│   │       │   │   └── database/                       [Fase 8]
-│   │       │   │       ├── database.py
-│   │       │   │       ├── models.py
-│   │       │   │       └── repositories.py
-│   │       │   └── documents/                          [Fase 10]
-│   │       │       ├── gerador_documento_fabricacao.py
-│   │       │       └── gerador_manual_montagem.py
-│   │       ├── presentation/                           [Fase 1]
-│   │       │   └── api/                                [Fase 1]
-│   │       │       ├── main.py
-│   │       │       ├── routes/                         [Fase 1]
-│   │       │       │   ├── armario.py
-│   │       │       │   └── configuracao.py
-│   │       │       └── exception_handlers.py
+│   │       │   ├── exceptions/                         [Fase 1]
+│   │       │   │   ├── configuracao_exception.py
+│   │       │   │   └── movel_exception.py
+│   │       │   └── enums/                              [Fase 1]
+│   │       │       ├── tipo_movel.py
+│   │       │       ├── finalidade.py
+│   │       │       ├── ordenacao_horizontal.py
+│   │       │       ├── conteudo.py
+│   │       │       ├── tipo_material.py
+│   │       │       ├── estilo_movel.py
+│   │       │       └── ordenacao_vertical.py
+│   │       ├── services/                               [Fase 1]
+│   │       │   ├── configuracao_service.py
+│   │       │   ├── validacao_service.py
+│   │       │   ├── calculo_pecas_service.py             [Fase 3]
+│   │       │   ├── documento_fabricacao_service.py      [Fase 10]
+│   │       │   └── manual_montagem_service.py           [Fase 11]
+│   │       ├── repositories/                           [Fase 1]
+│   │       │   ├── configuracao_repository.py
+│   │       │   ├── json/                               [Fase 1]
+│   │       │   │   ├── configuracoes.json
+│   │       │   │   └── configuracao_json_repository.py
+│   │       │   └── database/                           [Fase 8]
+│   │       │       ├── database.py
+│   │       │       ├── models.py
+│   │       │       └── configuracao_database_repository.py
+│   │       ├── routes/                                 [Fase 1]
+│   │       │   ├── schemas/                            [Fase 1]
+│   │       │   │   ├── armario.py
+│   │       │   │   └── configuracao.py
+│   │       │   ├── armario.py
+│   │       │   ├── configuracao.py
+│   │       │   └── exception_handlers.py
+│   │       ├── main.py                                 [Fase 1]
 │   │       └── config.py
 │   └── Dockerfile
 ├── specs/                                              [Fase 1]
@@ -805,14 +799,14 @@ marcadores, ainda que sejam necessários apenas em fases posteriores.
 As especificações SDD serão mantidas em `specs/`, separadas por fase. Cada
 diretório de fase deverá conter somente as especificações do respectivo escopo,
 em arquivos JSON objetivos e versionados.
-Na Fase 1 será criado apenas o adaptador JSON de configurações. O Alembic e a
+Na Fase 1 será criado apenas o repositório JSON de configurações. O Alembic e a
 persistência em banco serão adicionados na Fase 8 para as configurações e
-ampliados na Fase 9 para os móveis. Os adaptadores de documentos serão criados
-nas Fases 10 e 11. O cálculo do plano de corte permanecerá independente de sua
-posterior geração como documento.
+ampliados na Fase 9 para os móveis. Os serviços de geração de documentos serão
+criados nas Fases 10 e 11. O cálculo do plano de corte permanecerá independente
+de sua posterior geração como documento.
 
 A estrutura será organizada em subpacotes de acordo com a responsabilidade de
-cada elemento. Dentro deles, entidades, casos de uso, rotas e adaptadores serão
+cada camada. Dentro deles, entidades, serviços, rotas e repositórios serão
 separados por contexto funcional, mantendo no mesmo arquivo os elementos que
 possuírem alta coesão. Um arquivo deverá ser dividido quando o crescimento gerar
 responsabilidades distintas ou dificultar sua manutenção.
@@ -821,82 +815,76 @@ Diretórios vazios não deverão ser criados antecipadamente. Os elementos marca
 como fases futuras deverão permanecer apenas como referência neste documento até
 que as respectivas funcionalidades sejam implementadas.
 
-## 9.2 Responsabilidades das camadas
+## 9.2 Responsabilidades das camadas e módulos de suporte
 
-### `domain`
+### `entities`
 
-Conterá o núcleo das regras de negócio da marcenaria. O subpacote `entities`
-agrupará as entidades de configuração e de móvel; `value_objects` conterá
-dimensões e posições; `enums` reunirá as classificações do domínio; `services`
-implementará a configuração do móvel, suas validações e o cálculo das peças; e
-`exceptions` representará os erros próprios dessas operações.
+Conterá os objetos que representam os conceitos da marcenaria, incluindo as
+configurações, os móveis, seus componentes, enums, exceções e objetos de valor. As
+entidades deverão concentrar apenas estado e comportamentos próprios desses
+conceitos, sem depender de FastAPI, mecanismos de persistência ou detalhes de
+serialização HTTP.
 
-Essa camada será independente de frameworks, mecanismos de persistência e
-detalhes da API. Por isso, não poderá importar módulos de `application`,
-`infrastructure` ou `presentation`.
+### `services`
 
-### `application`
+Conterá os fluxos da aplicação e as regras de negócio, incluindo criação e
+consulta de configurações, validações, configuração do móvel, cálculo das peças,
+plano de corte e geração dos documentos. Cada serviço deverá possuir uma
+responsabilidade clara e poderá utilizar entidades e repositórios.
 
-Conterá os contratos de entrada e saída das operações da aplicação. O subpacote
-`dto` reunirá os dados de entrada e saída de armários e configurações. Esses DTOs
-também serão utilizados pela API para validação estrutural e serialização,
-evitando a criação de schemas equivalentes em `presentation` nesta etapa.
+Os serviços não deverão conhecer detalhes de HTTP nem acessar diretamente
+arquivos, banco de dados ou configurações específicas de uma tecnologia de
+persistência. Quando precisarem armazenar ou recuperar dados, deverão utilizar o
+contrato do repositório correspondente.
 
-Os DTOs não deverão conter regras de negócio nem elementos específicos de HTTP.
-A camada poderá depender de `domain`, mas não de implementações presentes em
-`infrastructure` nem de detalhes de `presentation`. Novos módulos de aplicação
-serão adicionados somente quando a implementação dos respectivos casos de uso os
-exigir.
+### `repositories`
 
-### `infrastructure`
+Conterá os contratos e as implementações de acesso aos dados. Na Fase 1,
+`repositories.configuracao_repository` definirá as operações disponíveis e
+`repositories.json` implementará a persistência das configurações no arquivo
+JSON versionado.
 
-Conterá os adaptadores técnicos usados para integrar a aplicação a recursos
-externos. Na Fase 1, `infrastructure.persistence.json` implementará o repositório
-de configurações baseado no arquivo JSON do projeto.
+Na Fase 8, `repositories.database` conterá a configuração do banco, os modelos
+do ORM e a implementação dos repositórios de configurações. Na Fase 9, essa
+implementação será ampliada para os móveis e seus resultados. Os modelos de
+persistência não deverão substituir as entidades; os repositórios serão
+responsáveis pela conversão entre essas representações quando necessária.
 
-Na Fase 8, `infrastructure.persistence.database` conterá a configuração do
-banco, os modelos do ORM e os repositórios de configurações. Na Fase 9, esses
-adaptadores serão ampliados para os móveis e resultados calculados. Os modelos
-de persistência não deverão substituir as entidades de `domain`; os repositórios
-serão responsáveis pela conversão entre essas representações quando necessária.
+### `routes`
 
-Nas Fases 10 e 11, `infrastructure.documents` conterá os adaptadores para gerar,
-respectivamente, o PDF de fabricação e o manual de montagem. Essa geração
-documental não deverá conter nem substituir as regras responsáveis pelo cálculo
-das peças e do plano de corte.
+Conterá a API REST, os schemas de entrada e saída e os tratadores de exceções
+HTTP. As rotas deverão validar a estrutura das requisições, chamar o serviço
+correspondente e converter seu resultado em resposta HTTP.
 
-### `presentation`
+As rotas não deverão implementar regras de negócio nem acessar repositórios
+diretamente. Os schemas utilizados para validação e serialização não deverão
+substituir as entidades.
 
-Conterá a API REST. `api.main` será o ponto de entrada e de composição da
-aplicação; `api.routes` disponibilizará as operações de armário e configuração;
-e `api.exception_handlers` converterá as exceções da aplicação em respostas
-HTTP adequadas.
+### Módulos de suporte
 
-As rotas utilizarão diretamente os DTOs de `application` como contratos de
-entrada e saída. Elas deverão se limitar ao protocolo HTTP, à chamada das
-operações da aplicação e à construção da resposta, sem implementar regras de
-negócio.
-
-### `config`
-
-Centralizará a leitura das configurações de ambiente e de logging utilizadas
-pelo backend. Segredos e credenciais não deverão ser versionados; o repositório
+`main.py` será o ponto de entrada da API e fará a composição dos repositórios com
+os serviços. `config.py` centralizará a leitura das configurações de ambiente e
+de logging utilizadas pelo backend. Esses módulos não constituem camadas
+adicionais. Segredos e credenciais não deverão ser versionados; o repositório
 deverá manter somente `.env.example` com as variáveis necessárias e valores não
 sensíveis.
 
 
 ## 9.3 Regra de dependência
 
-As dependências entre as camadas deverão apontar para o centro da aplicação:
+O fluxo principal entre as camadas deverá seguir esta direção:
 
 ```text
-presentation ──→ application ──→ domain
-infrastructure ──→ application ──→ domain
+routes ──→ services ──→ repositories
+               │               │
+               └──→ entities ←─┘
 ```
 
-`domain` não dependerá de nenhuma outra camada. `application` conhecerá apenas
-o domínio e seus próprios contratos. A composição das implementações concretas
-será realizada no ponto de entrada da API.
+As rotas deverão chamar serviços, e não repositórios diretamente. Os serviços
+coordenarão as regras de negócio e o acesso aos dados. Os repositórios cuidarão
+exclusivamente da persistência e recuperação. As entidades não dependerão das
+demais camadas. A criação dos repositórios e sua injeção nos serviços será
+realizada em `main.py`.
 
 ---
 
@@ -982,13 +970,13 @@ Angular
 Fast API
    |
    ↓
-Application
+Routes
    |
    ↓
-Domain
+Services
    |
    ↓
-Infrastructure
+Repositories
    |
    ↓
 JSON (Fases 1 a 7)
@@ -1070,7 +1058,7 @@ Backend e demais componentes deverão permitir execução através de Docker.
 
 ### RNF04 — Separação de responsabilidades
 
-Regras de negócio não deverão ser implementadas diretamente nos controllers.
+Regras de negócio não deverão ser implementadas diretamente nas rotas.
 
 ### RNF05 — Versionamento
 
