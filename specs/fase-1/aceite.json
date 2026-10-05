@@ -1,6 +1,6 @@
 {
   "spec": "fase-1-aceite",
-  "versao": 1,
+  "versao": 2,
   "fase": 1,
   "cenarios": [
     {
@@ -42,7 +42,7 @@
     {
       "id": "AC07",
       "dado": "o ambiente da Fase 1 sem banco de dados",
-      "quando": "os testes de domínio, API e repositório forem executados",
+      "quando": "os testes de entidades, serviços, rotas e repositórios forem executados",
       "entao": "todos são concluídos com sucesso sem conexão externa"
     },
     {
@@ -50,6 +50,12 @@
       "dado": "a aplicação em execução",
       "quando": "a documentação OpenAPI for consultada",
       "entao": "o endpoint POST /api/v1/configuracoes e seus contratos estão documentados"
+    },
+    {
+      "id": "AC09",
+      "dado": "a organização em camadas da Fase 1",
+      "quando": "as dependências entre os componentes forem verificadas",
+      "entao": "as rotas chamam serviços, os serviços utilizam repositórios, e as entidades não dependem das demais camadas"
     }
   ]
 }

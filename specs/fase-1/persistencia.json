@@ -1,8 +1,12 @@
 {
   "spec": "fase-1-persistencia",
-  "versao": 1,
+  "versao": 2,
   "fase": 1,
-  "arquivo": "backend/src/marcenaria_digital_api/infrastructure/persistence/json/configuracoes.json",
+  "arquivo": "backend/src/marcenaria_digital_api/repositories/json/configuracoes.json",
+  "repository": {
+    "contrato": "backend/src/marcenaria_digital_api/repositories/configuracao_repository.py",
+    "implementacao": "backend/src/marcenaria_digital_api/repositories/json/configuracao_json_repository.py"
+  },
   "formato": {
     "encoding": "UTF-8",
     "estrutura": {
@@ -23,6 +27,8 @@
     }
   ],
   "regras": [
+    "A persistência deve ser acessada pelos serviços por meio do contrato ConfiguracaoRepository.",
+    "As rotas não podem acessar o repositório diretamente.",
     "Validar a estrutura completa do arquivo antes de utilizar seus dados.",
     "Serializar e desserializar sem perda de dados.",
     "Gravar primeiro em arquivo temporário no mesmo diretório e substituir o arquivo original atomicamente.",

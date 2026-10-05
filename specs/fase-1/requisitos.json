@@ -1,11 +1,12 @@
 {
   "spec": "fase-1-requisitos",
-  "versao": 1,
+  "versao": 2,
   "fase": 1,
   "objetivo": "Modelar, validar, gravar e recuperar configurações reutilizáveis de estilos de armário.",
   "escopo": {
     "inclui": [
       "backend FastAPI",
+      "arquitetura em camadas com routes, services, entities e repositories",
       "modelo de configuração e detalhes",
       "validação de dados e relações espaciais",
       "criação de configuração pela API",
@@ -38,6 +39,10 @@
     "Cada configuração deve possuir identificador único.",
     "O arquivo JSON é a fonte de verdade e deve permanecer válido após qualquer tentativa de gravação.",
     "A solução não deve depender de banco de dados.",
-    "As regras de negócio não podem ser implementadas nas rotas HTTP."
+    "As regras de negócio não podem ser implementadas nas rotas HTTP.",
+    "As rotas devem chamar serviços e não podem acessar repositórios diretamente.",
+    "Os serviços devem coordenar as regras de negócio e utilizar os contratos dos repositórios para acessar dados.",
+    "Os repositórios devem cuidar exclusivamente da persistência e recuperação dos dados.",
+    "As entidades não podem depender das demais camadas."
   ]
 }

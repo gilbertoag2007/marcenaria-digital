@@ -1,6 +1,6 @@
 {
   "spec": "fase-1-api",
-  "versao": 1,
+  "versao": 2,
   "fase": 1,
   "base_path": "/api/v1",
   "endpoints": [
@@ -66,6 +66,7 @@
   "regras": [
     "Nenhum dado deve ser gravado quando a validação falhar.",
     "O contrato deve constar na documentação OpenAPI gerada pelo FastAPI.",
-    "A rota deve apenas adaptar HTTP e chamar a operação da aplicação."
+    "A rota deve apenas adaptar HTTP e chamar o serviço correspondente.",
+    "A rota não deve acessar repositórios diretamente."
   ]
 }
