@@ -443,9 +443,18 @@ Representa um modelo reutilizável de organização de um móvel.
 id: int
 tipo: TipoMovel
 estilo: EstiloMovel
+altura_minima_cm: Decimal
+altura_maxima_cm: Decimal
+largura_minima_cm: Decimal
+largura_maxima_cm: Decimal
+profundidade_minima_cm: Decimal
+profundidade_maxima_cm: Decimal
 ativo: bool
 detalhes: list[DetalheConfiguracao]
 ```
+
+Os limites dimensionais são obrigatórios, positivos, expressos em centímetros e
+o valor mínimo de cada dimensão não pode superar o respectivo valor máximo.
 
 ### DetalheConfiguracao
 

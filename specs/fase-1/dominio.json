@@ -1,6 +1,6 @@
 {
   "spec": "fase-1-dominio",
-  "versao": 1,
+  "versao": 2,
   "fase": 1,
   "entidades": {
     "Configuracao": {
@@ -8,6 +8,12 @@
         "id": "int positivo",
         "tipo": "TipoMovel",
         "estilo": "EstiloMovel",
+        "altura_minima_cm": "decimal positivo menor ou igual a altura_maxima_cm",
+        "altura_maxima_cm": "decimal positivo maior ou igual a altura_minima_cm",
+        "largura_minima_cm": "decimal positivo menor ou igual a largura_maxima_cm",
+        "largura_maxima_cm": "decimal positivo maior ou igual a largura_minima_cm",
+        "profundidade_minima_cm": "decimal positivo menor ou igual a profundidade_maxima_cm",
+        "profundidade_maxima_cm": "decimal positivo maior ou igual a profundidade_minima_cm",
         "ativo": "bool",
         "detalhes": "list[DetalheConfiguracao] com ao menos um item"
       }
@@ -42,6 +48,8 @@
   },
   "invariantes": [
     "O id da configuração deve ser único no arquivo.",
+    "Todos os limites dimensionais devem ser positivos e expressos em centímetros.",
+    "Os limites mínimos de altura, largura e profundidade não podem superar os respectivos limites máximos.",
     "Os ids dos detalhes devem ser únicos dentro da configuração.",
     "Toda referência espacial deve apontar para um detalhe existente na mesma configuração.",
     "Um detalhe não pode referenciar a si próprio.",

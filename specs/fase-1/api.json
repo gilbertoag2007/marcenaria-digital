@@ -1,6 +1,6 @@
 {
   "spec": "fase-1-api",
-  "versao": 2,
+  "versao": 3,
   "fase": 1,
   "base_path": "/api/v1",
   "endpoints": [
@@ -14,6 +14,12 @@
           "id": "int positivo",
           "tipo": "ARMARIO",
           "estilo": "MULTIUSO | GUARDA_ROUPA | ARMARIO_AEREO",
+          "altura_minima_cm": "decimal positivo menor ou igual a altura_maxima_cm",
+          "altura_maxima_cm": "decimal positivo maior ou igual a altura_minima_cm",
+          "largura_minima_cm": "decimal positivo menor ou igual a largura_maxima_cm",
+          "largura_maxima_cm": "decimal positivo maior ou igual a largura_minima_cm",
+          "profundidade_minima_cm": "decimal positivo menor ou igual a profundidade_maxima_cm",
+          "profundidade_maxima_cm": "decimal positivo maior ou igual a profundidade_minima_cm",
           "ativo": "bool",
           "detalhes": [
             {

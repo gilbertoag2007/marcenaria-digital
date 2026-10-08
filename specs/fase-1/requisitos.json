@@ -22,7 +22,7 @@
   "requisitos_funcionais": [
     {
       "id": "RF01",
-      "descricao": "Permitir definir configurações de armário com compartimentos, portas, ocupações percentuais e relações espaciais."
+      "descricao": "Permitir definir configurações de armário com limites dimensionais em centímetros, compartimentos, portas, ocupações percentuais e relações espaciais."
     },
     {
       "id": "RF02",

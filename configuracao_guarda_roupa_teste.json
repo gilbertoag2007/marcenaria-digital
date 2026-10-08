@@ -1,0 +1,94 @@
+{
+  "id": 1,
+  "tipo": "ARMARIO",
+  "estilo": "GUARDA_ROUPA",
+  "altura_minima_cm": 100.0,
+  "altura_maxima_cm": 240.0,
+  "largura_minima_cm": 100.0,
+  "largura_maxima_cm": 200.0,
+  "profundidade_minima_cm": 40.0,
+  "profundidade_maxima_cm": 50.0,
+  "ativo": true,
+  "detalhes": [
+    {
+      "id": 1,
+      "tipo": "COMPARTIMENTO",
+      "percentual_ocupacao_vertical": 30.0,
+      "percentual_ocupacao_horizontal": 33.0,
+      "em_cima_de_id": null,
+      "embaixo_de_id": null,
+      "a_direita_de_id": null,
+      "a_esquerda_de_id": 2
+    },
+    {
+      "id": 2,
+      "tipo": "COMPARTIMENTO",
+      "percentual_ocupacao_vertical": 30.0,
+      "percentual_ocupacao_horizontal": 33.0,
+      "em_cima_de_id": null,
+      "embaixo_de_id": null,
+      "a_direita_de_id": 1,
+      "a_esquerda_de_id": 3
+    },
+    {
+      "id": 3,
+      "tipo": "COMPARTIMENTO",
+      "percentual_ocupacao_vertical": 30.0,
+      "percentual_ocupacao_horizontal": 33.0,
+      "em_cima_de_id": null,
+      "embaixo_de_id": null,
+      "a_direita_de_id": 2,
+      "a_esquerda_de_id": null
+    },
+    {
+      "id": 4,
+      "tipo": "COMPARTIMENTO",
+      "percentual_ocupacao_vertical": 70.0,
+      "percentual_ocupacao_horizontal": 20.0,
+      "em_cima_de_id": null,
+      "embaixo_de_id": 1,
+      "a_direita_de_id": null,
+      "a_esquerda_de_id": 5
+    },
+    {
+      "id": 5,
+      "tipo": "COMPARTIMENTO",
+      "percentual_ocupacao_vertical": 70.0,
+      "percentual_ocupacao_horizontal": 20.0,
+      "em_cima_de_id": null,
+      "embaixo_de_id": 1,
+      "a_direita_de_id": 4,
+      "a_esquerda_de_id": 6
+    },
+    {
+      "id": 6,
+      "tipo": "COMPARTIMENTO",
+      "percentual_ocupacao_vertical": 70.0,
+      "percentual_ocupacao_horizontal": 20.0,
+      "em_cima_de_id": null,
+      "embaixo_de_id": 2,
+      "a_direita_de_id": 5,
+      "a_esquerda_de_id": 7
+    },
+    {
+      "id": 7,
+      "tipo": "COMPARTIMENTO",
+      "percentual_ocupacao_vertical": 70.0,
+      "percentual_ocupacao_horizontal": 20.0,
+      "em_cima_de_id": null,
+      "embaixo_de_id": 3,
+      "a_direita_de_id": 6,
+      "a_esquerda_de_id": 8
+    },
+    {
+      "id": 8,
+      "tipo": "COMPARTIMENTO",
+      "percentual_ocupacao_vertical": 70.0,
+      "percentual_ocupacao_horizontal": 20.0,
+      "em_cima_de_id": null,
+      "embaixo_de_id": 3,
+      "a_direita_de_id": 7,
+      "a_esquerda_de_id": null
+    }
+  ]
+}
