@@ -1,6 +1,6 @@
 {
   "spec": "fase-2-frontend",
-  "versao": 2,
+  "versao": 3,
   "fase": 2,
   "tecnologias": {
     "framework": "Vue 3",
@@ -38,7 +38,8 @@
     "informacoes_por_opcao": [
       "estilo",
       "limites mínimos e máximos de altura, largura e profundidade",
-      "prévia 2D dos detalhes"
+      "prévia 2D dos detalhes",
+      "quantidade de portas dos detalhes"
     ],
     "selecao": "Exatamente uma configuração pode ficar selecionada por vez; uma nova escolha substitui a anterior."
   },
@@ -61,6 +62,7 @@
     "Não persistir a seleção no backend, em banco de dados ou no arquivo JSON.",
     "A identidade da seleção deve ser o id da configuração, não apenas o valor do estilo.",
     "Todo acesso à API deve utilizar contratos tipados em TypeScript.",
+    "Os contratos TypeScript devem usar uma união discriminada: COMPARTIMENTO aceita quantidade de 0 a 10 e abertura condicionada à quantidade; PORTA mantém ambos os campos nulos.",
     "A aplicação deve executar e gerar seu pacote de produção por meio do Vite.",
     "A falha de uma prévia não pode provocar a exibição de dados internos da API."
   ]

@@ -1,6 +1,6 @@
 {
   "spec": "fase-1-persistencia",
-  "versao": 2,
+  "versao": 3,
   "fase": 1,
   "arquivo": "backend/src/marcenaria_digital_api/repositories/json/configuracoes.json",
   "repository": {
@@ -31,6 +31,7 @@
     "As rotas não podem acessar o repositório diretamente.",
     "Validar a estrutura completa do arquivo antes de utilizar seus dados.",
     "Serializar e desserializar sem perda de dados.",
+    "Preservar quantidade_portas e abertura_porta quando aplicáveis ao detalhe COMPARTIMENTO e mantê-los nulos para detalhes PORTA.",
     "Gravar primeiro em arquivo temporário no mesmo diretório e substituir o arquivo original atomicamente.",
     "Em caso de falha, preservar o conteúdo original como JSON válido.",
     "Impedir gravações concorrentes que causem perda de atualização.",

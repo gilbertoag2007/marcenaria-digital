@@ -1,6 +1,6 @@
 {
   "spec": "fase-2-requisitos",
-  "versao": 2,
+  "versao": 3,
   "fase": 2,
   "depende_de": [
     "fase-1"
@@ -28,7 +28,7 @@
   "requisitos_funcionais": [
     {
       "id": "RF04",
-      "descricao": "Listar pela API todas as configurações ativas gravadas no JSON, disponibilizando seus limites dimensionais, detalhes, percentuais e relações espaciais."
+      "descricao": "Listar pela API todas as configurações ativas gravadas no JSON, disponibilizando seus limites dimensionais, detalhes, percentuais, quantidade e abertura das portas e relações espaciais."
     },
     {
       "id": "RF05",

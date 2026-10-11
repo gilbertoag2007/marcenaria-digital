@@ -7,6 +7,7 @@ from marcenaria_digital_api.entities.configuracao import (
     DetalheConfiguracao,
 )
 from marcenaria_digital_api.entities.enums import (
+    AberturaPorta,
     EstiloMovel,
     TipoConfiguracao,
     TipoMovel,
@@ -25,6 +26,8 @@ class DetalheConfiguracaoInput(BaseModel):
                     "tipo": "COMPARTIMENTO",
                     "percentual_ocupacao_vertical": 50.0,
                     "percentual_ocupacao_horizontal": 100.0,
+                    "quantidade_portas": 2,
+                    "abertura_porta": "ABERTURA VERTICAL",
                     "em_cima_de_id": 20,
                     "embaixo_de_id": None,
                     "a_direita_de_id": None,
@@ -63,6 +66,25 @@ class DetalheConfiguracaoInput(BaseModel):
             "detalhe, maior que 0 e menor ou igual a 100."
         ),
         examples=[100.0],
+    )
+    quantidade_portas: int | None = Field(
+        default=None,
+        ge=0,
+        le=10,
+        strict=True,
+        description=(
+            "Quantidade de portas, entre 0 e 10, aplicável somente a "
+            "detalhes do tipo COMPARTIMENTO."
+        ),
+        examples=[2],
+    )
+    abertura_porta: AberturaPorta | None = Field(
+        default=None,
+        description=(
+            "Direção de abertura, obrigatória quando um COMPARTIMENTO possui "
+            "uma ou mais portas e ausente quando a quantidade é zero."
+        ),
+        examples=["ABERTURA VERTICAL"],
     )
     em_cima_de_id: int | None = Field(
         default=None,
@@ -134,6 +156,8 @@ class ConfiguracaoInput(BaseModel):
                             "tipo": "COMPARTIMENTO",
                             "percentual_ocupacao_vertical": 50.0,
                             "percentual_ocupacao_horizontal": 100.0,
+                            "quantidade_portas": 2,
+                            "abertura_porta": "ABERTURA VERTICAL",
                             "em_cima_de_id": 20,
                             "embaixo_de_id": None,
                             "a_direita_de_id": None,
@@ -144,6 +168,8 @@ class ConfiguracaoInput(BaseModel):
                             "tipo": "PORTA",
                             "percentual_ocupacao_vertical": 50.0,
                             "percentual_ocupacao_horizontal": 100.0,
+                            "quantidade_portas": None,
+                            "abertura_porta": None,
                             "em_cima_de_id": None,
                             "embaixo_de_id": 10,
                             "a_direita_de_id": None,
@@ -238,6 +264,8 @@ class DetalheConfiguracaoOutput(BaseModel):
     tipo: TipoConfiguracao
     percentual_ocupacao_vertical: float
     percentual_ocupacao_horizontal: float
+    quantidade_portas: int | None = None
+    abertura_porta: AberturaPorta | None = None
     em_cima_de_id: int | None = None
     embaixo_de_id: int | None = None
     a_direita_de_id: int | None = None
@@ -251,6 +279,8 @@ class DetalheConfiguracaoOutput(BaseModel):
             tipo=detalhe.tipo,
             percentual_ocupacao_vertical=detalhe.percentual_ocupacao_vertical,
             percentual_ocupacao_horizontal=detalhe.percentual_ocupacao_horizontal,
+            quantidade_portas=detalhe.quantidade_portas,
+            abertura_porta=detalhe.abertura_porta,
             em_cima_de_id=detalhe.em_cima_de_id,
             embaixo_de_id=detalhe.embaixo_de_id,
             a_direita_de_id=detalhe.a_direita_de_id,

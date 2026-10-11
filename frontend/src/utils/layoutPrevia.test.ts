@@ -3,18 +3,30 @@ import { describe, expect, it } from "vitest";
 import type { DetalheConfiguracao } from "../types/configuracao";
 import { calcularLayoutPrevia } from "./layoutPrevia";
 
+type RelacoesDetalhe = Partial<
+  Pick<
+    DetalheConfiguracao,
+    | "em_cima_de_id"
+    | "embaixo_de_id"
+    | "a_direita_de_id"
+    | "a_esquerda_de_id"
+  >
+>;
+
 /** Cria um detalhe válido para os cenários de cálculo da prévia. */
 function detalhe(
   id: number,
   horizontal: number,
   vertical: number,
-  relacoes: Partial<DetalheConfiguracao> = {},
+  relacoes: RelacoesDetalhe = {},
 ): DetalheConfiguracao {
   return {
     id,
     tipo: "COMPARTIMENTO",
     percentual_ocupacao_horizontal: horizontal,
     percentual_ocupacao_vertical: vertical,
+    quantidade_portas: 0,
+    abertura_porta: null,
     em_cima_de_id: null,
     embaixo_de_id: null,
     a_direita_de_id: null,

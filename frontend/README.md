@@ -1,6 +1,10 @@
 # Frontend — Fase 2
 
 Aplicação Vue 3 com TypeScript e Vite para o catálogo visual de configurações.
+O contrato TypeScript usa uma união discriminada para quantidade e abertura de
+portas. Em `COMPARTIMENTO`, a abertura é nula quando a quantidade é zero e
+obrigatória para quantidades de 1 a 10; em `PORTA`, ambos os campos são nulos.
+O catálogo exibe o total de portas por configuração.
 
 ## Preparação
 

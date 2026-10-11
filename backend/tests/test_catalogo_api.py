@@ -7,6 +7,16 @@ from fastapi.testclient import TestClient
 from marcenaria_digital_api.main import create_app
 
 
+def test_catalogo_versionado_pode_ser_consultado() -> None:
+    """Garante que o arquivo JSON distribuído com a aplicação seja válido."""
+    cliente = TestClient(create_app())
+
+    resposta = cliente.get("/api/v1/configuracoes")
+
+    assert resposta.status_code == 200
+    assert resposta.json()
+
+
 def _gravar_catalogo(
     arquivo_configuracoes: Path, payload_valido: dict
 ) -> list[dict]:

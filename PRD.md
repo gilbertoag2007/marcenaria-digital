@@ -146,7 +146,7 @@ disponíveis. As fases posteriores deverão manter as funcionalidades já entreg
 
 O backend deverá permitir definir configurações reutilizáveis para os estilos de
 armário, incluindo limites mínimos e máximos de altura, largura e profundidade,
-compartimentos, portas, ocupações e relações espaciais.
+compartimentos, quantidade e abertura das portas, ocupações e relações espaciais.
 
 #### RF02 — Validar configurações
 
@@ -346,7 +346,12 @@ Gavetas, cabideiros, divisões verticais e áreas livres deverão respeitar os e
 
 ### RN11 — Configuração das portas
 
-As portas deverão ser calculadas de acordo com a quantidade, as dimensões e a disposição definidas no projeto.
+As portas deverão ser calculadas de acordo com a quantidade, as dimensões e a
+disposição definidas no projeto. Cada detalhe de configuração deve informar uma
+quantidade inteira de portas entre 0 e 10, inclusive, somente quando seu tipo
+for `COMPARTIMENTO`. Quando a quantidade for maior que zero, a abertura deve ser
+`ABERTURA VERTICAL` ou `ABERTURA HORIZONTAL`; quando for zero, a abertura não
+deve ser informada. Detalhes do tipo `PORTA` não devem informar esses atributos.
 
 ### RN12 — Validação anterior ao cálculo
 
@@ -470,6 +475,8 @@ id: int
 tipo: TipoConfiguracao
 percentual_ocupacao_vertical: float
 percentual_ocupacao_horizontal: float
+quantidade_portas: int | None
+abertura_porta: AberturaPorta | None
 em_cima_de_id: int | None
 embaixo_de_id: int | None
 a_direita_de_id: int | None
@@ -481,7 +488,11 @@ Uma `Configuracao` possui um ou mais detalhes, e cada
 referências espaciais são IDs opcionais de outros detalhes da mesma
 configuração. Os IDs dos detalhes devem ser positivos e únicos dentro da
 configuração, e os percentuais de ocupação devem ser maiores que zero e menores
-ou iguais a 100.
+ou iguais a 100. Em detalhes do tipo `COMPARTIMENTO`, a quantidade de portas é
+obrigatória e deve ser um inteiro entre 0 e 10, inclusive. A abertura é
+obrigatória quando essa quantidade for maior que zero e não deve ser informada
+quando ela for zero. Os dois atributos não se aplicam a detalhes do tipo
+`PORTA` e devem permanecer nulos nesse caso.
 
 Uma referência espacial deve apontar para um detalhe existente, não pode apontar
 para o próprio detalhe nem produzir contradições ou ciclos nos eixos vertical e
@@ -610,6 +621,13 @@ quantidade: int
 ```text
 COMPARTIMENTO
 PORTA
+```
+
+### AberturaPorta
+
+```text
+ABERTURA VERTICAL
+ABERTURA HORIZONTAL
 ```
 
 ### TipoMovel

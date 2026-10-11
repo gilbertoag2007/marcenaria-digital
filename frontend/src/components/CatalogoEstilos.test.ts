@@ -30,6 +30,8 @@ function configuracao(id: number): Configuracao {
         tipo: "COMPARTIMENTO",
         percentual_ocupacao_vertical: 100,
         percentual_ocupacao_horizontal: 100,
+        quantidade_portas: 2,
+        abertura_porta: "ABERTURA VERTICAL",
         em_cima_de_id: null,
         embaixo_de_id: null,
         a_direita_de_id: null,
@@ -50,6 +52,7 @@ describe("CatalogoEstilos", () => {
     await flushPromises();
 
     expect(wrapper.findAll("svg.previa")).toHaveLength(2);
+    expect(wrapper.text()).toContain("2 portas");
     const botoes = wrapper.findAll("button.botao-selecao");
     await botoes[0].trigger("click");
     expect(botoes[0].attributes("aria-pressed")).toBe("true");

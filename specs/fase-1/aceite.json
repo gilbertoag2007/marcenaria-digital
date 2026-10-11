@@ -1,6 +1,6 @@
 {
   "spec": "fase-1-aceite",
-  "versao": 2,
+  "versao": 3,
   "fase": 1,
   "cenarios": [
     {
@@ -56,6 +56,18 @@
       "dado": "a organização em camadas da Fase 1",
       "quando": "as dependências entre os componentes forem verificadas",
       "entao": "as rotas chamam serviços, os serviços utilizam repositórios, e as entidades não dependem das demais camadas"
+    },
+    {
+      "id": "AC10",
+      "dado": "um COMPARTIMENTO com quantidade zero e abertura nula ou quantidade entre 1 e 10 com abertura válida",
+      "quando": "a configuração for criada e recuperada",
+      "entao": "a API aceita e preserva os dois atributos sem perda de dados"
+    },
+    {
+      "id": "AC11",
+      "dado": "um detalhe com quantidade fora de 0 a 10, combinação inválida de quantidade e abertura, ou atributos de porta aplicados ao tipo PORTA",
+      "quando": "a criação for solicitada",
+      "entao": "a API responde 422 e o arquivo não é alterado"
     }
   ]
 }

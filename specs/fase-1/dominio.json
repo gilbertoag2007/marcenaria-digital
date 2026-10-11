@@ -1,6 +1,6 @@
 {
   "spec": "fase-1-dominio",
-  "versao": 2,
+  "versao": 3,
   "fase": 1,
   "entidades": {
     "Configuracao": {
@@ -24,6 +24,8 @@
         "tipo": "TipoConfiguracao",
         "percentual_ocupacao_vertical": "float maior que 0 e menor ou igual a 100",
         "percentual_ocupacao_horizontal": "float maior que 0 e menor ou igual a 100",
+        "quantidade_portas": "int entre 0 e 10, inclusive, para COMPARTIMENTO; null para PORTA",
+        "abertura_porta": "AberturaPorta quando o COMPARTIMENTO possuir portas; null quando a quantidade for zero ou o tipo for PORTA",
         "em_cima_de_id": "int positivo ou null",
         "embaixo_de_id": "int positivo ou null",
         "a_direita_de_id": "int positivo ou null",
@@ -44,6 +46,10 @@
     "TipoConfiguracao": [
       "COMPARTIMENTO",
       "PORTA"
+    ],
+    "AberturaPorta": [
+      "ABERTURA VERTICAL",
+      "ABERTURA HORIZONTAL"
     ]
   },
   "invariantes": [
@@ -51,6 +57,10 @@
     "Todos os limites dimensionais devem ser positivos e expressos em centímetros.",
     "Os limites mínimos de altura, largura e profundidade não podem superar os respectivos limites máximos.",
     "Os ids dos detalhes devem ser únicos dentro da configuração.",
+    "Detalhes do tipo COMPARTIMENTO devem informar uma quantidade de portas inteira entre 0 e 10, inclusive.",
+    "Quando um COMPARTIMENTO possuir uma ou mais portas, sua abertura deve ser ABERTURA VERTICAL ou ABERTURA HORIZONTAL.",
+    "Quando um COMPARTIMENTO possuir zero portas, sua abertura não deve ser informada.",
+    "Detalhes do tipo PORTA não devem informar quantidade_portas nem abertura_porta.",
     "Toda referência espacial deve apontar para um detalhe existente na mesma configuração.",
     "Um detalhe não pode referenciar a si próprio.",
     "Um detalhe não pode estar simultaneamente acima e abaixo, nem à direita e à esquerda, do mesmo detalhe.",

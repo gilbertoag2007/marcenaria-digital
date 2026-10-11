@@ -1,6 +1,6 @@
 {
   "spec": "fase-2-aceite",
-  "versao": 2,
+  "versao": 3,
   "fase": 2,
   "cenarios": [
     {
@@ -80,6 +80,12 @@
       "dado": "o frontend da Fase 2",
       "quando": "for executado em desenvolvimento e compilado para produção",
       "entao": "Vue 3 e TypeScript funcionam por meio do Vite sem dependência da implementação futura em Three.js"
+    },
+    {
+      "id": "AC14",
+      "dado": "configurações ativas com quantidade e abertura de portas aplicáveis somente aos compartimentos",
+      "quando": "o catálogo for carregado",
+      "entao": "o frontend recebe os atributos tipados e apresenta a quantidade total de portas"
     }
   ]
 }

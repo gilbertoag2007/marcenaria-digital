@@ -29,6 +29,122 @@ def test_cria_configuracao_e_documenta_contrato(
         "profundidade_minima_cm",
         "profundidade_maxima_cm",
     } <= propriedades.keys()
+    propriedades_detalhe = openapi["components"]["schemas"][
+        "DetalheConfiguracaoInput"
+    ]["properties"]
+    assert {"quantidade_portas", "abertura_porta"} <= propriedades_detalhe.keys()
+
+
+def test_aceita_limites_da_quantidade_de_portas(
+    arquivo_configuracoes: Path, payload_valido: dict
+) -> None:
+    """Aceita as quantidades mínima e máxima de portas."""
+    cliente = TestClient(create_app(arquivo_configuracoes))
+    payload_valido["detalhes"][0]["quantidade_portas"] = 0
+    payload_valido["detalhes"][0]["abertura_porta"] = None
+
+    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
+
+    assert resposta.status_code == 201
+    assert resposta.json()["detalhes"][0]["quantidade_portas"] == 0
+
+    payload_valido["id"] = 2
+    payload_valido["detalhes"][0]["quantidade_portas"] = 10
+    payload_valido["detalhes"][0]["abertura_porta"] = "ABERTURA HORIZONTAL"
+
+    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
+
+    assert resposta.status_code == 201
+    assert resposta.json()["detalhes"][0]["quantidade_portas"] == 10
+
+
+def test_rejeita_abertura_quando_quantidade_de_portas_e_zero(
+    arquivo_configuracoes: Path, payload_valido: dict
+) -> None:
+    """Rejeita abertura informada para um compartimento sem portas."""
+    cliente = TestClient(create_app(arquivo_configuracoes))
+    payload_valido["detalhes"][0]["quantidade_portas"] = 0
+
+    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
+
+    assert resposta.status_code == 422
+    assert {
+        "campo": "detalhes.0.abertura_porta",
+        "mensagem": "não deve ser informada quando a quantidade de portas for zero",
+    } in resposta.json()["detalhes"]
+
+
+def test_rejeita_compartimento_com_portas_sem_abertura(
+    arquivo_configuracoes: Path, payload_valido: dict
+) -> None:
+    """Exige abertura para um compartimento que possui portas."""
+    cliente = TestClient(create_app(arquivo_configuracoes))
+    payload_valido["detalhes"][0]["abertura_porta"] = None
+
+    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
+
+    assert resposta.status_code == 422
+    assert resposta.json()["detalhes"][0]["campo"] == "detalhes.0.abertura_porta"
+
+
+def test_rejeita_compartimento_sem_quantidade_de_portas(
+    arquivo_configuracoes: Path, payload_valido: dict
+) -> None:
+    """Exige a quantidade de portas nos detalhes do tipo compartimento."""
+    cliente = TestClient(create_app(arquivo_configuracoes))
+    del payload_valido["detalhes"][0]["quantidade_portas"]
+    payload_valido["detalhes"][0]["abertura_porta"] = None
+
+    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
+
+    assert resposta.status_code == 422
+    assert resposta.json()["detalhes"][0]["campo"] == "detalhes.0.quantidade_portas"
+
+
+def test_rejeita_atributos_de_porta_em_detalhe_do_tipo_porta(
+    arquivo_configuracoes: Path, payload_valido: dict
+) -> None:
+    """Restringe quantidade e abertura aos detalhes do tipo compartimento."""
+    cliente = TestClient(create_app(arquivo_configuracoes))
+    payload_valido["detalhes"][1]["quantidade_portas"] = 1
+    payload_valido["detalhes"][1]["abertura_porta"] = "ABERTURA VERTICAL"
+
+    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
+
+    assert resposta.status_code == 422
+    campos = {item["campo"] for item in resposta.json()["detalhes"]}
+    assert {
+        "detalhes.1.quantidade_portas",
+        "detalhes.1.abertura_porta",
+    } <= campos
+
+
+def test_rejeita_quantidade_de_portas_fora_do_intervalo(
+    arquivo_configuracoes: Path, payload_valido: dict
+) -> None:
+    """Rejeita uma quantidade de portas superior ao limite."""
+    cliente = TestClient(create_app(arquivo_configuracoes))
+    payload_valido["detalhes"][0]["quantidade_portas"] = 11
+
+    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
+
+    assert resposta.status_code == 422
+    assert resposta.json()["detalhes"][0]["campo"] == "detalhes.0.quantidade_portas"
+    assert json.loads(arquivo_configuracoes.read_text())["configuracoes"] == []
+
+
+def test_rejeita_abertura_de_porta_desconhecida(
+    arquivo_configuracoes: Path, payload_valido: dict
+) -> None:
+    """Rejeita valores que não pertencem ao enum de abertura."""
+    cliente = TestClient(create_app(arquivo_configuracoes))
+    payload_valido["detalhes"][0]["abertura_porta"] = "ABERTURA DIAGONAL"
+
+    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
+
+    assert resposta.status_code == 422
+    assert resposta.json()["detalhes"][0]["campo"] == "detalhes.0.abertura_porta"
+    assert json.loads(arquivo_configuracoes.read_text())["configuracoes"] == []
 
 
 def test_retorna_422_e_nao_grava_payload_incompleto(

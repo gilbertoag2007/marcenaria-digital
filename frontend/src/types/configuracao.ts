@@ -1,10 +1,11 @@
 export type TipoMovel = "ARMARIO";
 export type EstiloMovel = "MULTIUSO" | "GUARDA_ROUPA" | "ARMARIO_AEREO";
 export type TipoConfiguracao = "COMPARTIMENTO" | "PORTA";
+export type AberturaPorta = "ABERTURA VERTICAL" | "ABERTURA HORIZONTAL";
+export type QuantidadePortas = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
-export interface DetalheConfiguracao {
+interface DetalheConfiguracaoBase {
   id: number;
-  tipo: TipoConfiguracao;
   percentual_ocupacao_vertical: number;
   percentual_ocupacao_horizontal: number;
   em_cima_de_id: number | null;
@@ -12,6 +13,25 @@ export interface DetalheConfiguracao {
   a_direita_de_id: number | null;
   a_esquerda_de_id: number | null;
 }
+
+export type DetalheConfiguracao = DetalheConfiguracaoBase &
+  (
+    | {
+        tipo: "COMPARTIMENTO";
+        quantidade_portas: 0;
+        abertura_porta: null;
+      }
+    | {
+        tipo: "COMPARTIMENTO";
+        quantidade_portas: Exclude<QuantidadePortas, 0>;
+        abertura_porta: AberturaPorta;
+      }
+    | {
+        tipo: "PORTA";
+        quantidade_portas: null;
+        abertura_porta: null;
+      }
+  );
 
 export interface Configuracao {
   id: number;

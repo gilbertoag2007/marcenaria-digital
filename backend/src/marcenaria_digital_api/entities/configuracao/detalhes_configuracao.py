@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from marcenaria_digital_api.entities.enums import TipoConfiguracao
+from marcenaria_digital_api.entities.enums import AberturaPorta, TipoConfiguracao
 
 
 @dataclass(frozen=True, slots=True)
@@ -11,6 +11,8 @@ class DetalheConfiguracao:
     tipo: TipoConfiguracao
     percentual_ocupacao_vertical: float
     percentual_ocupacao_horizontal: float
+    quantidade_portas: int | None = None
+    abertura_porta: AberturaPorta | None = None
     em_cima_de_id: int | None = None
     embaixo_de_id: int | None = None
     a_direita_de_id: int | None = None

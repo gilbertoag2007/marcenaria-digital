@@ -1,6 +1,6 @@
 {
   "spec": "fase-1-requisitos",
-  "versao": 2,
+  "versao": 3,
   "fase": 1,
   "objetivo": "Modelar, validar, gravar e recuperar configurações reutilizáveis de estilos de armário.",
   "escopo": {
@@ -22,7 +22,7 @@
   "requisitos_funcionais": [
     {
       "id": "RF01",
-      "descricao": "Permitir definir configurações de armário com limites dimensionais em centímetros, compartimentos, portas, ocupações percentuais e relações espaciais."
+      "descricao": "Permitir definir configurações de armário com limites dimensionais em centímetros, compartimentos, quantidade de portas entre 0 e 10, abertura vertical ou horizontal, ocupações percentuais e relações espaciais."
     },
     {
       "id": "RF02",
@@ -36,6 +36,8 @@
   "restricoes": [
     "O único tipo de móvel permitido é ARMARIO.",
     "Os estilos permitidos são MULTIUSO, GUARDA_ROUPA e ARMARIO_AEREO.",
+    "Somente detalhes COMPARTIMENTO devem informar quantidade_portas; abertura_porta é exigida para quantidades positivas e proibida para quantidade zero.",
+    "Detalhes PORTA devem manter quantidade_portas e abertura_porta nulos.",
     "Cada configuração deve possuir identificador único.",
     "O arquivo JSON é a fonte de verdade e deve permanecer válido após qualquer tentativa de gravação.",
     "A solução não deve depender de banco de dados.",

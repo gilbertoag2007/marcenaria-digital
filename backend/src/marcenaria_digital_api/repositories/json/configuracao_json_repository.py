@@ -20,6 +20,7 @@ from marcenaria_digital_api.entities.configuracao import (
 )
 from marcenaria_digital_api.entities.configuracao.validacao import validar_configuracao
 from marcenaria_digital_api.entities.enums import (
+    AberturaPorta,
     EstiloMovel,
     TipoConfiguracao,
     TipoMovel,
@@ -40,6 +41,8 @@ class _DetalheConfiguracaoJson(BaseModel):
     tipo: TipoConfiguracao
     percentual_ocupacao_vertical: float = Field(gt=0, le=100, strict=True)
     percentual_ocupacao_horizontal: float = Field(gt=0, le=100, strict=True)
+    quantidade_portas: int | None = Field(default=None, ge=0, le=10, strict=True)
+    abertura_porta: AberturaPorta | None = None
     em_cima_de_id: int | None = Field(default=None, gt=0, strict=True)
     embaixo_de_id: int | None = Field(default=None, gt=0, strict=True)
     a_direita_de_id: int | None = Field(default=None, gt=0, strict=True)
@@ -57,6 +60,8 @@ class _DetalheConfiguracaoJson(BaseModel):
             tipo=detalhe.tipo,
             percentual_ocupacao_vertical=detalhe.percentual_ocupacao_vertical,
             percentual_ocupacao_horizontal=detalhe.percentual_ocupacao_horizontal,
+            quantidade_portas=detalhe.quantidade_portas,
+            abertura_porta=detalhe.abertura_porta,
             em_cima_de_id=detalhe.em_cima_de_id,
             embaixo_de_id=detalhe.embaixo_de_id,
             a_direita_de_id=detalhe.a_direita_de_id,

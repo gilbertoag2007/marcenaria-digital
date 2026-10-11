@@ -67,6 +67,14 @@ function formatarIntervalo(minimo: number, maximo: number): string {
   return `${formatarMedida(minimo)}–${formatarMedida(maximo)} cm`;
 }
 
+/** Soma as portas informadas pelos detalhes de uma configuração. */
+function contarPortas(configuracao: Configuracao): number {
+  return configuracao.detalhes.reduce(
+    (total, detalhe) => total + (detalhe.quantidade_portas ?? 0),
+    0,
+  );
+}
+
 onMounted(carregarCatalogo);
 </script>
 
@@ -170,6 +178,9 @@ onMounted(carregarCatalogo);
               <td data-label="Elementos">
                 {{ configuracao.detalhes.length }}
                 {{ configuracao.detalhes.length === 1 ? "elemento" : "elementos" }}
+                <br />
+                {{ contarPortas(configuracao) }}
+                {{ contarPortas(configuracao) === 1 ? "porta" : "portas" }}
               </td>
               <td data-label="Status"><span class="status"><i aria-hidden="true"></i>Disponível</span></td>
               <td data-label="Ações" class="acoes">

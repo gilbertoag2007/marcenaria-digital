@@ -1,8 +1,16 @@
 import math
 from decimal import Decimal, InvalidOperation
 
-from marcenaria_digital_api.entities.configuracao import Configuracao
-from marcenaria_digital_api.entities.enums import EstiloMovel, TipoConfiguracao, TipoMovel
+from marcenaria_digital_api.entities.configuracao import (
+    Configuracao,
+    DetalheConfiguracao,
+)
+from marcenaria_digital_api.entities.enums import (
+    AberturaPorta,
+    EstiloMovel,
+    TipoConfiguracao,
+    TipoMovel,
+)
 from marcenaria_digital_api.entities.exceptions import (
     ConfiguracaoInvalidaError,
     ErroValidacao,
@@ -33,6 +41,7 @@ def validar_configuracao(configuracao: Configuracao) -> None:
             erros.append(ErroValidacao(f"{prefixo}.id", "deve ser um inteiro positivo"))
         if not isinstance(detalhe.tipo, TipoConfiguracao):
             erros.append(ErroValidacao(f"{prefixo}.tipo", "tipo de configuração não permitido"))
+        _validar_portas_detalhe(detalhe, prefixo, erros)
         if detalhe.id in ids:
             duplicados.add(detalhe.id)
         ids.add(detalhe.id)
@@ -103,6 +112,60 @@ def validar_configuracao(configuracao: Configuracao) -> None:
 
     if erros:
         raise ConfiguracaoInvalidaError(erros)
+
+
+def _validar_portas_detalhe(
+    detalhe: DetalheConfiguracao, prefixo: str, erros: list[ErroValidacao]
+) -> None:
+    """Valida quantidade e abertura de portas conforme o tipo do detalhe."""
+    tipo = detalhe.tipo
+    quantidade = detalhe.quantidade_portas
+    abertura = detalhe.abertura_porta
+
+    if tipo == TipoConfiguracao.PORTA:
+        if quantidade is not None:
+            erros.append(
+                ErroValidacao(
+                    f"{prefixo}.quantidade_portas",
+                    "só deve ser informada para detalhes do tipo COMPARTIMENTO",
+                )
+            )
+        if abertura is not None:
+            erros.append(
+                ErroValidacao(
+                    f"{prefixo}.abertura_porta",
+                    "só deve ser informada para detalhes do tipo COMPARTIMENTO",
+                )
+            )
+        return
+
+    if tipo != TipoConfiguracao.COMPARTIMENTO:
+        return
+
+    quantidade_valida = type(quantidade) is int and 0 <= quantidade <= 10
+    if not quantidade_valida:
+        erros.append(
+            ErroValidacao(
+                f"{prefixo}.quantidade_portas",
+                "deve ser um inteiro entre 0 e 10",
+            )
+        )
+        return
+
+    if quantidade == 0 and abertura is not None:
+        erros.append(
+            ErroValidacao(
+                f"{prefixo}.abertura_porta",
+                "não deve ser informada quando a quantidade de portas for zero",
+            )
+        )
+    elif quantidade > 0 and not isinstance(abertura, AberturaPorta):
+        erros.append(
+            ErroValidacao(
+                f"{prefixo}.abertura_porta",
+                "deve ser informada quando a quantidade de portas for maior que zero",
+            )
+        )
 
 
 def _validar_limites_dimensionais(

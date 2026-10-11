@@ -1,9 +1,9 @@
 {
   "spec": "fase-2-api",
-  "versao": 2,
+  "versao": 3,
   "fase": 2,
   "base_path": "/api/v1",
-  "schema_configuracao": "Mesmo formato de ConfiguracaoOutput definido na Fase 1.",
+  "schema_configuracao": "Mesmo formato de ConfiguracaoOutput definido na Fase 1, incluindo quantidade_portas e abertura_porta anuláveis conforme o tipo e a quantidade de portas do detalhe.",
   "endpoints": [
     {
       "metodo": "GET",

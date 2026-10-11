@@ -1,4 +1,4 @@
-# Backend — Fase 1
+# Backend — Fases 1 e 2
 
 ## Preparação
 
@@ -22,6 +22,20 @@ Endpoints disponíveis:
 - `GET /api/v1/configuracoes`: lista configurações ativas;
 - `GET /api/v1/configuracoes/{id}`: consulta uma configuração ativa;
 - `GET /api/v1/estilos-armario`: lista estilos com configurações ativas.
+
+Detalhes do tipo `COMPARTIMENTO` enviados e retornados nesses contratos incluem:
+
+```json
+{
+  "quantidade_portas": 2,
+  "abertura_porta": "ABERTURA VERTICAL"
+}
+```
+
+`quantidade_portas` deve ser um inteiro entre 0 e 10, inclusive. Para uma
+quantidade positiva, `abertura_porta` é obrigatória e aceita `ABERTURA VERTICAL`
+ou `ABERTURA HORIZONTAL`. Para quantidade zero, a abertura deve ser nula.
+Detalhes do tipo `PORTA` devem manter os dois atributos nulos.
 
 O caminho do arquivo de configurações pode ser sobrescrito pela variável de
 ambiente `MARCENARIA_CONFIGURACOES_JSON_PATH`.
