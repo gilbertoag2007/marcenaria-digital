@@ -1,0 +1,95 @@
+{
+  "spec": "fase-2-api",
+  "versao": 2,
+  "fase": 2,
+  "base_path": "/api/v1",
+  "schema_configuracao": "Mesmo formato de ConfiguracaoOutput definido na Fase 1.",
+  "endpoints": [
+    {
+      "metodo": "GET",
+      "caminho": "/configuracoes",
+      "objetivo": "Listar todas as configurações ativas disponíveis para o catálogo.",
+      "responses": {
+        "200": {
+          "descricao": "Consulta concluída, inclusive quando não há configurações ativas.",
+          "body": "list[ConfiguracaoOutput] contendo somente itens com ativo igual a true, na ordem do arquivo JSON"
+        },
+        "500": {
+          "descricao": "Falha de leitura sem exposição de detalhes internos.",
+          "body": {
+            "erro": "falha_persistencia",
+            "mensagem": "string"
+          }
+        }
+      }
+    },
+    {
+      "metodo": "GET",
+      "caminho": "/configuracoes/{id}",
+      "objetivo": "Recuperar os dados completos de uma configuração ativa.",
+      "path_params": {
+        "id": "int positivo"
+      },
+      "responses": {
+        "200": {
+          "descricao": "Configuração ativa encontrada.",
+          "body": "ConfiguracaoOutput"
+        },
+        "404": {
+          "descricao": "Configuração inexistente ou inativa.",
+          "body": {
+            "erro": "configuracao_nao_encontrada",
+            "mensagem": "string"
+          }
+        },
+        "422": {
+          "descricao": "Identificador estruturalmente inválido.",
+          "body": {
+            "erro": "requisicao_invalida",
+            "detalhes": [
+              {
+                "campo": "string",
+                "mensagem": "string"
+              }
+            ]
+          }
+        },
+        "500": {
+          "descricao": "Falha de leitura sem exposição de detalhes internos.",
+          "body": {
+            "erro": "falha_persistencia",
+            "mensagem": "string"
+          }
+        }
+      }
+    },
+    {
+      "metodo": "GET",
+      "caminho": "/estilos-armario",
+      "objetivo": "Listar os estilos que possuem ao menos uma configuração ativa.",
+      "responses": {
+        "200": {
+          "descricao": "Consulta concluída, inclusive quando nenhum estilo está disponível.",
+          "body": "list[EstiloMovel] sem duplicidade, preservando a ordem da primeira configuração ativa no JSON"
+        },
+        "500": {
+          "descricao": "Falha de leitura sem exposição de detalhes internos.",
+          "body": {
+            "erro": "falha_persistencia",
+            "mensagem": "string"
+          }
+        }
+      }
+    }
+  ],
+  "regras": [
+    "As consultas não podem alterar o arquivo JSON.",
+    "Configurações inativas devem ser tratadas como indisponíveis nos endpoints públicos da Fase 2.",
+    "Uma coleção sem resultados deve responder 200 com uma lista vazia.",
+    "Os contratos devem constar na documentação OpenAPI gerada pelo FastAPI.",
+    "O FastAPI é a única fonte de dados do catálogo consumido pelo frontend.",
+    "As rotas devem apenas adaptar HTTP e chamar os serviços correspondentes.",
+    "Erros internos não podem expor caminhos, conteúdo do arquivo ou rastros de exceção.",
+    "O endpoint POST /configuracoes e seus contratos da Fase 1 devem permanecer inalterados."
+  ]
+}

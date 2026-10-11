@@ -1,0 +1,33 @@
+{
+  "spec": "fase-2-persistencia",
+  "versao": 1,
+  "fase": 2,
+  "fonte_de_verdade": "backend/src/marcenaria_digital_api/repositories/json/configuracoes.json",
+  "repository": {
+    "contrato": "backend/src/marcenaria_digital_api/repositories/configuracao_repository.py",
+    "implementacao": "backend/src/marcenaria_digital_api/repositories/json/configuracao_json_repository.py"
+  },
+  "operacoes_reutilizadas": [
+    {
+      "nome": "obter_por_id",
+      "entrada": "id da configuração",
+      "saida": "Configuracao correspondente ou null"
+    }
+  ],
+  "operacoes_novas": [
+    {
+      "nome": "listar_ativas",
+      "entrada": "nenhuma",
+      "saida": "list[Configuracao] contendo somente configurações ativas na ordem do arquivo"
+    }
+  ],
+  "regras": [
+    "A estrutura e a versão do arquivo devem continuar iguais às definidas na Fase 1.",
+    "A leitura deve validar o arquivo completo antes de devolver qualquer resultado.",
+    "A filtragem de configurações ativas deve ocorrer sem modificar os dados persistidos.",
+    "A consulta por id não deve criar, atualizar nem remover configurações.",
+    "Uma falha de leitura ou validação do arquivo deve produzir FalhaPersistenciaError.",
+    "Os testes devem utilizar arquivos temporários e não podem alterar o JSON versionado.",
+    "Não utilizar banco de dados nem criar outra fonte de persistência."
+  ]
+}

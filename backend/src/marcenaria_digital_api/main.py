@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from marcenaria_digital_api.config import Settings
 from marcenaria_digital_api.repositories.json import ConfiguracaoJsonRepository
@@ -24,6 +25,12 @@ def create_app(caminho_configuracoes: str | Path | None = None) -> FastAPI:
         description="API para configurações reutilizáveis de armários.",
     )
     aplicacao.state.configuracao_service = ConfiguracaoService(repositorio)
+    aplicacao.add_middleware(
+        CORSMiddleware,
+        allow_origins=list(settings.frontend_origins),
+        allow_methods=["GET", "POST"],
+        allow_headers=["*"],
+    )
     registrar_exception_handlers(aplicacao)
     aplicacao.include_router(router, prefix="/api/v1")
     return aplicacao

@@ -16,6 +16,13 @@ python -m venv .venv
 
 A documentação OpenAPI ficará disponível em `http://127.0.0.1:8000/docs`.
 
+Endpoints disponíveis:
+
+- `POST /api/v1/configuracoes`: cria uma configuração;
+- `GET /api/v1/configuracoes`: lista configurações ativas;
+- `GET /api/v1/configuracoes/{id}`: consulta uma configuração ativa;
+- `GET /api/v1/estilos-armario`: lista estilos com configurações ativas.
+
 O caminho do arquivo de configurações pode ser sobrescrito pela variável de
 ambiente `MARCENARIA_CONFIGURACOES_JSON_PATH`.
 

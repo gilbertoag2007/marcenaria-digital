@@ -1,6 +1,7 @@
 from .configuracao_exception import (
     ConfiguracaoDuplicadaError,
     ConfiguracaoInvalidaError,
+    ConfiguracaoNaoEncontradaError,
     ErroValidacao,
     FalhaPersistenciaError,
 )
@@ -8,7 +9,7 @@ from .configuracao_exception import (
 __all__ = [
     "ConfiguracaoDuplicadaError",
     "ConfiguracaoInvalidaError",
+    "ConfiguracaoNaoEncontradaError",
     "ErroValidacao",
     "FalhaPersistenciaError",
 ]
-

@@ -1,0 +1,67 @@
+{
+  "spec": "fase-2-frontend",
+  "versao": 2,
+  "fase": 2,
+  "tecnologias": {
+    "framework": "Vue 3",
+    "linguagem": "TypeScript",
+    "ferramenta_build": "Vite",
+    "renderizacao_2d": "SVG",
+    "renderizacao_3d_futura": "Three.js"
+  },
+  "objetivo": "Exibir e permitir selecionar configurações ativas por meio de um catálogo com prévias 2D.",
+  "fonte_de_dados": {
+    "principal": "GET /api/v1/configuracoes",
+    "detalhe": "GET /api/v1/configuracoes/{id}",
+    "estilos_disponiveis": "GET /api/v1/estilos-armario"
+  },
+  "componentes_logicos": [
+    {
+      "nome": "CatalogoEstilos",
+      "responsabilidade": "Carregar as configurações ativas, controlar os estados da tela e apresentar uma opção para cada configuração."
+    },
+    {
+      "nome": "PreviaEstilo2D",
+      "responsabilidade": "Representar em SVG compartimentos e portas em escala normalizada a partir dos percentuais e relações espaciais."
+    },
+    {
+      "nome": "SeletorConfiguracao",
+      "responsabilidade": "Manter no estado transitório o id da configuração selecionada e destacar visualmente a escolha atual."
+    }
+  ],
+  "apresentacao": {
+    "rotulos_estilo": {
+      "MULTIUSO": "Armário multiuso",
+      "GUARDA_ROUPA": "Guarda-roupa",
+      "ARMARIO_AEREO": "Armário aéreo"
+    },
+    "informacoes_por_opcao": [
+      "estilo",
+      "limites mínimos e máximos de altura, largura e profundidade",
+      "prévia 2D dos detalhes"
+    ],
+    "selecao": "Exatamente uma configuração pode ficar selecionada por vez; uma nova escolha substitui a anterior."
+  },
+  "estados": {
+    "carregando": "Informar que o catálogo está sendo carregado e impedir confirmação prematura.",
+    "vazio": "Informar que não há estilos disponíveis quando a API responder com lista vazia.",
+    "erro": "Apresentar mensagem compreensível e permitir nova tentativa sem expor detalhes internos.",
+    "pronto": "Exibir todas as configurações ativas e permitir a seleção."
+  },
+  "diretriz_evolucao_visual": {
+    "fase_2": "Usar SVG para as prévias não dimensionais dos estilos.",
+    "fase_5": "Usar SVG para representar em 2D a geometria dimensional calculada pelo FastAPI.",
+    "fase_6": "Usar Three.js em componente Vue próprio para representar em 3D as peças e coordenadas calculadas pelo FastAPI.",
+    "fonte_geometria": "FastAPI",
+    "responsabilidade_frontend": "Renderizar os dados recebidos sem recalcular peças, dimensões ou coordenadas."
+  },
+  "regras": [
+    "Não desenhar medidas físicas nem peças calculadas na prévia.",
+    "Não exibir configurações inativas, mesmo que dados inválidos sejam fornecidos ao componente.",
+    "Não persistir a seleção no backend, em banco de dados ou no arquivo JSON.",
+    "A identidade da seleção deve ser o id da configuração, não apenas o valor do estilo.",
+    "Todo acesso à API deve utilizar contratos tipados em TypeScript.",
+    "A aplicação deve executar e gerar seu pacote de produção por meio do Vite.",
+    "A falha de uma prévia não pode provocar a exibição de dados internos da API."
+  ]
+}

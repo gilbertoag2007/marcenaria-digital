@@ -1,0 +1,85 @@
+{
+  "spec": "fase-2-aceite",
+  "versao": 2,
+  "fase": 2,
+  "cenarios": [
+    {
+      "id": "AC01",
+      "dado": "um JSON com configurações ativas e inativas",
+      "quando": "GET /api/v1/configuracoes for executado",
+      "entao": "a API responde 200 somente com as configurações ativas, completas e na ordem do arquivo"
+    },
+    {
+      "id": "AC02",
+      "dado": "um JSON sem configurações ativas",
+      "quando": "GET /api/v1/configuracoes for executado",
+      "entao": "a API responde 200 com uma lista vazia"
+    },
+    {
+      "id": "AC03",
+      "dado": "uma configuração ativa existente",
+      "quando": "GET /api/v1/configuracoes/{id} for executado com seu id",
+      "entao": "a API responde 200 com todos os dados da configuração"
+    },
+    {
+      "id": "AC04",
+      "dado": "um id inexistente ou pertencente a uma configuração inativa",
+      "quando": "GET /api/v1/configuracoes/{id} for executado",
+      "entao": "a API responde 404 com erro configuracao_nao_encontrada"
+    },
+    {
+      "id": "AC05",
+      "dado": "configurações ativas com estilos repetidos",
+      "quando": "GET /api/v1/estilos-armario for executado",
+      "entao": "a API responde 200 com os estilos disponíveis sem duplicidade"
+    },
+    {
+      "id": "AC06",
+      "dado": "um arquivo JSON ausente, corrompido ou incompatível",
+      "quando": "qualquer consulta do catálogo for executada",
+      "entao": "a API responde 500 sem expor caminho, conteúdo do arquivo ou rastro de exceção"
+    },
+    {
+      "id": "AC07",
+      "dado": "configurações ativas retornadas pela API",
+      "quando": "o catálogo for apresentado",
+      "entao": "o frontend Vue exibe uma opção e uma prévia SVG para cada configuração"
+    },
+    {
+      "id": "AC08",
+      "dado": "uma prévia 2D de estilo",
+      "quando": "ela for renderizada",
+      "entao": "o SVG apresenta compartimentos e portas respeitando os percentuais e as relações espaciais sem representar dimensões de um móvel calculado"
+    },
+    {
+      "id": "AC09",
+      "dado": "mais de uma configuração disponível",
+      "quando": "o usuário selecionar uma opção",
+      "entao": "somente ela fica destacada e seu id permanece no estado transitório do frontend"
+    },
+    {
+      "id": "AC10",
+      "dado": "uma consulta em andamento, uma lista vazia ou uma falha da API",
+      "quando": "o catálogo estiver no estado correspondente",
+      "entao": "o frontend apresenta respectivamente carregamento, mensagem de catálogo vazio ou erro com possibilidade de nova tentativa"
+    },
+    {
+      "id": "AC11",
+      "dado": "a implementação da Fase 2",
+      "quando": "a suíte completa for executada",
+      "entao": "os testes da Fase 1 continuam aprovados e nenhum banco de dados ou conexão externa é utilizado"
+    },
+    {
+      "id": "AC12",
+      "dado": "a aplicação em execução",
+      "quando": "a documentação OpenAPI for consultada",
+      "entao": "os três endpoints GET da Fase 2 e seus contratos estão documentados"
+    },
+    {
+      "id": "AC13",
+      "dado": "o frontend da Fase 2",
+      "quando": "for executado em desenvolvimento e compilado para produção",
+      "entao": "Vue 3 e TypeScript funcionam por meio do Vite sem dependência da implementação futura em Three.js"
+    }
+  ]
+}

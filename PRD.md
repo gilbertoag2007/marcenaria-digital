@@ -145,12 +145,14 @@ disponíveis. As fases posteriores deverão manter as funcionalidades já entreg
 #### RF01 — Criar configurações de armário
 
 O backend deverá permitir definir configurações reutilizáveis para os estilos de
-armário, incluindo compartimentos, portas, ocupações e relações espaciais.
+armário, incluindo limites mínimos e máximos de altura, largura e profundidade,
+compartimentos, portas, ocupações e relações espaciais.
 
 #### RF02 — Validar configurações
 
 O backend deverá rejeitar configurações incompletas, inconsistentes ou com
-relações espaciais inválidas, informando os erros encontrados.
+limites dimensionais, percentuais, identificadores ou relações espaciais
+inválidos, informando os erros encontrados.
 
 #### RF03 — Persistir configurações em JSON
 
@@ -167,8 +169,9 @@ gravadas no JSON e disponibilizar os respectivos detalhes ao frontend.
 #### RF05 — Apresentar estilos em 2D
 
 O frontend deverá apresentar em 2D todos os estilos recuperados, permitindo que
-o usuário visualize suas divisões e selecione um deles. Essa representação é uma
-prévia do estilo, e não a representação dimensional de um móvel calculado.
+o usuário visualize suas divisões e selecione um deles. A prévia deverá ser
+renderizada com SVG. Essa representação é uma prévia do estilo, e não a
+representação dimensional de um móvel calculado.
 
 ### Fase 3 — Configuração e cálculo do móvel (backend e frontend)
 
@@ -215,14 +218,16 @@ total de MDF calculada para o móvel.
 #### RF13 — Gerar e apresentar o móvel em 2D
 
 O backend deverá fornecer a geometria calculada e o frontend deverá representar
-em 2D o móvel, suas peças e divisões internas conforme as dimensões informadas.
+em 2D, com SVG, o móvel, suas peças e divisões internas conforme as dimensões
+informadas.
 
 ### Fase 6 — Representação 3D do móvel (backend e frontend)
 
 #### RF14 — Gerar e apresentar o móvel em 3D
 
 O backend deverá fornecer a geometria calculada e o frontend deverá permitir
-visualizar, rotacionar, aproximar e inspecionar interna e externamente o móvel.
+visualizar, rotacionar, aproximar e inspecionar interna e externamente o móvel
+com Three.js.
 
 ### Fase 7 — Plano de corte (backend e frontend)
 
@@ -462,19 +467,26 @@ Representa o posicionamento espacial e organização dos compartimentos e portas
 
 ```text
 id: int
-configuracao: Configuracao
 tipo: TipoConfiguracao
 percentual_ocupacao_vertical: float
 percentual_ocupacao_horizontal: float
-em_cima_de: DetalheConfiguracao | None
-embaixo_de: DetalheConfiguracao | None
-a_direita_de: DetalheConfiguracao | None
-a_esquerda_de: DetalheConfiguracao | None
+em_cima_de_id: int | None
+embaixo_de_id: int | None
+a_direita_de_id: int | None
+a_esquerda_de_id: int | None
 ```
 
 Uma `Configuracao` possui um ou mais detalhes, e cada
-`DetalheConfiguracao` pertence a exatamente uma configuração. As quatro
-referências espaciais são autorrelacionamentos opcionais.
+`DetalheConfiguracao` pertence à configuração em que está aninhado. As quatro
+referências espaciais são IDs opcionais de outros detalhes da mesma
+configuração. Os IDs dos detalhes devem ser positivos e únicos dentro da
+configuração, e os percentuais de ocupação devem ser maiores que zero e menores
+ou iguais a 100.
+
+Uma referência espacial deve apontar para um detalhe existente, não pode apontar
+para o próprio detalhe nem produzir contradições ou ciclos nos eixos vertical e
+horizontal. Quando os dois lados de uma relação inversa forem informados, eles
+devem ser coerentes.
 
 ## 8.2 Objetos de valor
 
@@ -722,79 +734,90 @@ poderá manter o nome `marcenaria_digital`.
 
 ## 9.1 Estrutura de diretórios
 
+Ao final da Fase 2, a estrutura principal implementada é:
+
 ```text
-marcenaria-digital/                                     [Fase 1]
-├── backend/                                            [Fase 1]
+marcenaria-digital/
+├── backend/
+│   ├── .env.example
+│   ├── README.md
 │   ├── pyproject.toml
-│   ├── alembic.ini
-│   ├── src/                                            [Fase 1]
-│   │   └── marcenaria_digital_api/                     [Fase 1]
+│   ├── requirements.txt
+│   ├── src/
+│   │   └── marcenaria_digital_api/
 │   │       ├── __init__.py
-│   │       ├── entities/                               [Fase 1]
-│   │       │   ├── configuracao/                       [Fase 1]
+│   │       ├── config.py
+│   │       ├── main.py
+│   │       ├── entities/
+│   │       │   ├── configuracao/
 │   │       │   │   ├── configuracao.py
-│   │       │   │   └── detalhes_configuracao.py
-│   │       │   ├── movel/                              [Fase 3]
-│   │       │   │   ├── movel.py
-│   │       │   │   ├── componente.py
-│   │       │   │   ├── material.py
-│   │       │   │   ├── peca.py
-│   │       │   │   ├── compartimento.py
-│   │       │   │   ├── gaveta.py
-│   │       │   │   ├── estrutura.py
-│   │       │   │   ├── porta.py
-│   │       │   │   └── armario.py
-│   │       │   ├── value_objects/                      [Fase 3]
-│   │       │   │   ├── dimensao.py
-│   │       │   │   └── posicao_3d.py
-│   │       │   ├── exceptions/                         [Fase 1]
-│   │       │   │   ├── configuracao_exception.py
-│   │       │   │   └── movel_exception.py
-│   │       │   └── enums/                              [Fase 1]
-│   │       │       ├── tipo_movel.py
-│   │       │       ├── finalidade.py
-│   │       │       ├── ordenacao_horizontal.py
-│   │       │       ├── conteudo.py
-│   │       │       ├── tipo_material.py
+│   │       │   │   ├── detalhes_configuracao.py
+│   │       │   │   └── validacao.py
+│   │       │   ├── enums/
 │   │       │       ├── estilo_movel.py
-│   │       │       └── ordenacao_vertical.py
-│   │       ├── services/                               [Fase 1]
-│   │       │   ├── configuracao_service.py
-│   │       │   ├── validacao_service.py
-│   │       │   ├── calculo_pecas_service.py             [Fase 3]
-│   │       │   ├── documento_fabricacao_service.py      [Fase 10]
-│   │       │   └── manual_montagem_service.py           [Fase 11]
-│   │       ├── repositories/                           [Fase 1]
+│   │       │       ├── tipo_configuracao.py
+│   │       │       └── tipo_movel.py
+│   │       │   └── exceptions/
+│   │       │       └── configuracao_exception.py
+│   │       ├── repositories/
 │   │       │   ├── configuracao_repository.py
-│   │       │   ├── json/                               [Fase 1]
-│   │       │   │   ├── configuracoes.json
-│   │       │   │   └── configuracao_json_repository.py
-│   │       │   └── database/                           [Fase 8]
-│   │       │       ├── database.py
-│   │       │       ├── models.py
-│   │       │       └── configuracao_database_repository.py
-│   │       ├── routes/                                 [Fase 1]
-│   │       │   ├── schemas/                            [Fase 1]
-│   │       │   │   ├── armario.py
-│   │       │   │   └── configuracao.py
-│   │       │   ├── armario.py
+│   │       │   └── json/
+│   │       │       ├── configuracoes.json
+│   │       │       └── configuracao_json_repository.py
+│   │       ├── routes/
 │   │       │   ├── configuracao.py
-│   │       │   └── exception_handlers.py
-│   │       ├── main.py                                 [Fase 1]
-│   │       └── config.py
-│   └── Dockerfile
-├── specs/                                              [Fase 1]
-│   └── fase-1/                                         [Fase 1]
+│   │       │   ├── exception_handlers.py
+│   │       │   └── schemas/
+│   │       │       └── configuracao.py
+│   │       └── services/
+│   │           ├── configuracao_service.py
+│   │           └── validacao_service.py
+│   └── tests/
+│       ├── conftest.py
+│       ├── test_api.py
+│       ├── test_arquitetura.py
+│       ├── test_catalogo_api.py
+│       ├── test_repositorio_json.py
+│       └── test_validacao_service.py
+├── frontend/
+│   ├── .env.example
+│   ├── README.md
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── tsconfig.json
+│   ├── tsconfig.app.json
+│   ├── tsconfig.node.json
+│   ├── vite.config.ts
+│   └── src/
+│       ├── App.vue
+│       ├── main.ts
+│       ├── styles.css
+│       ├── components/
+│       │   ├── CatalogoEstilos.vue
+│       │   ├── CatalogoEstilos.test.ts
+│       │   └── PreviaEstilo2D.vue
+│       ├── services/
+│       │   └── configuracoesApi.ts
+│       ├── types/
+│       │   └── configuracao.ts
+│       └── utils/
+│           ├── layoutPrevia.ts
+│           └── layoutPrevia.test.ts
+├── specs/
+│   ├── fase-1/
+│   │   ├── requisitos.json
+│   │   ├── dominio.json
+│   │   ├── api.json
+│   │   ├── persistencia.json
+│   │   └── aceite.json
+│   └── fase-2/
 │       ├── requisitos.json
 │       ├── dominio.json
 │       ├── api.json
 │       ├── persistencia.json
+│       ├── frontend.json
 │       └── aceite.json
-├── frontend/                                           [Fase 2]
-│   ├── src/                                            [Fase 2]
-│   └── Dockerfile
-├── .env.example
-├── compose.yaml
+├── AGENTS.md
 ├── PRD.md
 └── README.md
 ```
@@ -802,17 +825,15 @@ marcenaria-digital/                                     [Fase 1]
 Os arquivos `__init__.py` dos subpacotes foram omitidos da árvore para facilitar
 a leitura, mas deverão existir nos diretórios Python importáveis.
 
-Os marcadores são aplicados exclusivamente aos diretórios e identificam a
-primeira fase em que cada um deverá ser criado. Arquivos e classes não recebem
-marcadores, ainda que sejam necessários apenas em fases posteriores.
 As especificações SDD serão mantidas em `specs/`, separadas por fase. Cada
 diretório de fase deverá conter somente as especificações do respectivo escopo,
 em arquivos JSON objetivos e versionados.
-Na Fase 1 será criado apenas o repositório JSON de configurações. O Alembic e a
-persistência em banco serão adicionados na Fase 8 para as configurações e
-ampliados na Fase 9 para os móveis. Os serviços de geração de documentos serão
-criados nas Fases 10 e 11. O cálculo do plano de corte permanecerá independente
-de sua posterior geração como documento.
+
+Somente os componentes necessários até a Fase 2 devem existir neste momento.
+Entidades e serviços de cálculo serão introduzidos a partir da Fase 3; Alembic e
+persistência em banco serão adicionados na Fase 8; e os serviços de geração de
+documentos serão criados nas Fases 10 e 11. Artefatos de containerização também
+não fazem parte da estrutura implementada até a Fase 2.
 
 A estrutura será organizada em subpacotes de acordo com a responsabilidade de
 cada camada. Dentro deles, entidades, serviços, rotas e repositórios serão
@@ -872,11 +893,12 @@ substituir as entidades.
 ### Módulos de suporte
 
 `main.py` será o ponto de entrada da API e fará a composição dos repositórios com
-os serviços. `config.py` centralizará a leitura das configurações de ambiente e
-de logging utilizadas pelo backend. Esses módulos não constituem camadas
-adicionais. Segredos e credenciais não deverão ser versionados; o repositório
-deverá manter somente `.env.example` com as variáveis necessárias e valores não
-sensíveis.
+os serviços. `config.py` centralizará a leitura das configurações de ambiente e,
+quando a política correspondente for introduzida, de logging. Na Fase 1, ele
+define o caminho do arquivo JSON e permite sobrescrevê-lo por variável de
+ambiente. Esses módulos não constituem camadas adicionais. Segredos e
+credenciais não deverão ser versionados; o repositório deverá manter somente
+`.env.example` com as variáveis necessárias e valores não sensíveis.
 
 
 ## 9.3 Regra de dependência
@@ -900,7 +922,10 @@ realizada em `main.py`.
 # 10. API
 
 A API deverá seguir o padrão REST, possuir versionamento explícito e manter
-contratos compatíveis ao longo das fases. Em caso de erros de calculo ou erros de execução deverá ser escrito um arquivo de log com as infomrações do erro. 
+contratos compatíveis ao longo das fases. Na Fase 1, falhas de validação e de
+persistência devem ser convertidas em respostas padronizadas, sem exposição de
+caminhos, rastros de exceção ou outros detalhes internos. A política de gravação
+de logs em arquivo será definida quando os fluxos de cálculo forem introduzidos.
 
 Os caminhos abaixo são a referência
 inicial e poderão ser refinados sem alterar as responsabilidades definidas:
@@ -930,6 +955,41 @@ GET    /api/v1/moveis/{id}/documentos/fabricacao.pdf [Fase 10]
 GET    /api/v1/moveis/{id}/manual-montagem.pdf       [Fase 11]
 ```
 
+## 10.1 Contrato implementado na Fase 1
+
+O único endpoint público da Fase 1 é `POST /api/v1/configuracoes`. Ele recebe
+uma configuração com os seguintes campos obrigatórios:
+
+```text
+id: int positivo
+tipo: ARMARIO
+estilo: MULTIUSO | GUARDA_ROUPA | ARMARIO_AEREO
+altura_minima_cm: Decimal positivo
+altura_maxima_cm: Decimal positivo
+largura_minima_cm: Decimal positivo
+largura_maxima_cm: Decimal positivo
+profundidade_minima_cm: Decimal positivo
+profundidade_maxima_cm: Decimal positivo
+ativo: bool
+detalhes: list[DetalheConfiguracao] com ao menos um item
+```
+
+Cada detalhe utiliza o formato descrito na Seção 8.1. Campos desconhecidos são
+rejeitados. Os limites mínimos não podem superar os respectivos limites máximos.
+Quando a criação for concluída, a API responde `201` com a configuração
+persistida. As respostas de erro são:
+
+* `409 configuracao_duplicada`: já existe uma configuração com o mesmo ID;
+* `422 configuracao_invalida`: a estrutura ou uma regra de negócio é inválida,
+  com a lista de campos e mensagens correspondentes;
+* `500 falha_persistencia`: ocorreu uma falha técnica de leitura ou gravação,
+  apresentada sem detalhes internos.
+
+O contrato é publicado automaticamente pelo FastAPI em OpenAPI/Swagger. A
+operação `obter_por_id` existe no contrato interno do repositório para validar a
+recuperação sem perda de dados, mas não é exposta como endpoint público na Fase
+1.
+
 As operações das Fases 3, 5, 6 e 7 deverão receber os dados necessários no
 corpo da requisição e devolver o resultado sem pressupor que exista um móvel
 salvo. A partir da Fase 9, também poderão operar sobre um identificador persistido.
@@ -944,6 +1004,29 @@ As configurações deverão ser armazenadas em um arquivo JSON dentro do projeto
 O arquivo deverá possuir estrutura versionada, codificação UTF-8, identificadores
 estáveis e validação antes da leitura ou gravação. Ele será a fonte de verdade
 das configurações durante essas fases.
+
+Na Fase 1, o arquivo fica em
+`backend/src/marcenaria_digital_api/repositories/json/configuracoes.json` e
+possui a seguinte raiz:
+
+```json
+{
+  "versao": 1,
+  "configuracoes": []
+}
+```
+
+O repositório deve validar a estrutura completa e as regras de domínio de todas
+as configurações lidas. A inclusão deve impedir IDs duplicados e serializar e
+recuperar todos os campos sem perda de dados. A gravação deve ocorrer primeiro
+em arquivo temporário no mesmo diretório e substituir o original atomicamente,
+preservando-o se houver falha. O ciclo de leitura, verificação e gravação deve
+ser sincronizado entre threads e processos para evitar perda de atualizações
+concorrentes.
+
+O caminho pode ser sobrescrito pela variável de ambiente
+`MARCENARIA_CONFIGURACOES_JSON_PATH`. Nos testes, devem ser usados arquivos
+temporários para que a suíte não altere o JSON versionado.
 
 As informações preenchidas para um móvel, as peças calculadas, as listas, as
 representações e o plano de corte não deverão ser persistidos nesse período.
@@ -967,16 +1050,30 @@ recuperar um móvel completo e identificar a configuração que originou o cálc
 
 # 12. Interface Web
 
-A aplicação deverá possuir frontend independente da API.
+A aplicação deverá possuir frontend independente da API, implementado com
+**Vue 3**, **TypeScript** e **Vite**. Vue será responsável pelos componentes, pelo
+estado da interface, pela navegação e pelo consumo da API; TypeScript deverá
+tipar os contratos utilizados pelo frontend; e Vite será utilizado para o
+ambiente de desenvolvimento e para a geração do pacote de produção.
+
+As prévias de estilos da Fase 2 e a representação dimensional 2D da Fase 5
+deverão utilizar **SVG**. A visualização 3D da Fase 6 deverá utilizar
+**Three.js**, encapsulada em componentes Vue próprios.
+
+O **FastAPI será a fonte de verdade das dimensões, peças e coordenadas**. O
+frontend não deverá duplicar regras de engenharia nem recalcular a geometria do
+móvel: ele deverá transformar os resultados fornecidos pela API em elementos
+SVG ou objetos Three.js. Assim, listas, representações 2D e representações 3D
+serão derivadas do mesmo cálculo validado.
 
 Tecnologias preferenciais e evolução da persistência:
 
 ```text
-Angular
+Vue 3 + TypeScript + Vite
    |
    | REST/JSON
    ↓
-Fast API
+FastAPI
    |
    ↓
 Routes
@@ -997,7 +1094,8 @@ JSON (Fases 1 a 7)
 
 # 13. Visualização 3D
 
-Para a representação tridimensional deverá ser considerada uma biblioteca WebGL.
+Para a representação tridimensional deverá ser utilizada uma biblioteca WebGL
+integrada ao frontend Vue.
 
 Tecnologia preferencial:
 
@@ -1007,7 +1105,9 @@ Three.js
 
 A API deverá fornecer as dimensões e propriedades geométricas necessárias para que o frontend construa a representação 3D.
 
-A responsabilidade de renderização deverá permanecer no frontend.
+A responsabilidade pelo cálculo das peças, dimensões e coordenadas deverá
+permanecer no FastAPI. A responsabilidade de criar a cena, a câmera, os objetos
+visuais, os controles e a renderização Three.js deverá permanecer no frontend.
 
 ---
 
@@ -1054,7 +1154,8 @@ O resultado deverá informar também:
 
 ### RNF01 — API
 
-A API deverá utilizar Python com FastAPI e expor documentação OpenAPI/Swagger.
+A API deverá utilizar Python 3.12, FastAPI, Pydantic 2 e expor documentação
+OpenAPI/Swagger.
 
 ### RNF02 — Banco de dados
 
@@ -1063,7 +1164,10 @@ A persistência inicial das configurações deverá utilizar JSON. A partir da F
 
 ### RNF03 — Containerização
 
-Backend e demais componentes deverão permitir execução através de Docker.
+A containerização do backend e dos demais componentes com Docker permanece uma
+diretriz futura, mas seus artefatos não integram a implementação da Fase 1. Até
+que ela seja introduzida, o backend deverá ser executável diretamente em um
+ambiente virtual Python.
 
 ### RNF04 — Separação de responsabilidades
 
@@ -1073,16 +1177,16 @@ Regras de negócio não deverão ser implementadas diretamente nas rotas.
 
 A API deverá utilizar versionamento explícito.
 
-### RNF08 — Precisão
+### RNF06 — Precisão
 
 Cálculos dimensionais deverão evitar arredondamentos que possam produzir medidas inválidas para fabricação.
 
-### RNF08 — Integridade do arquivo JSON
+### RNF07 — Integridade do arquivo JSON
 
 A leitura e a gravação das configurações deverão validar o schema do arquivo e
 evitar corrupção ou gravação parcial.
 
-### RNF09 — Compatibilidade evolutiva
+### RNF08 — Compatibilidade evolutiva
 
 A substituição do repositório JSON pelo PostgreSQL não deverá alterar as regras
 de domínio nem exigir mudanças incompatíveis nos consumidores da API.
@@ -1141,9 +1245,16 @@ de armário.
 **Critérios de aceite:**
 
 * uma configuração válida é serializada e recuperada sem perda de dados;
-* uma configuração inválida é rejeitada com mensagem identificável;
-* o arquivo permanece válido após inclusão de novas configurações;
-* testes do domínio e do repositório JSON são executados sem banco de dados.
+* limites dimensionais inválidos, percentuais inválidos e relações espaciais
+  inexistentes, contraditórias ou cíclicas são rejeitados com mensagens
+  identificáveis;
+* a API responde `201`, `409`, `422` e `500` conforme o contrato da Fase 1 e
+  documenta o endpoint no OpenAPI;
+* o arquivo permanece válido após inclusões, falhas simuladas de substituição e
+  gravações concorrentes;
+* rotas, serviços, entidades e repositórios respeitam a regra de dependência;
+* a suíte completa do backend é executada sem banco de dados nem conexão
+  externa e sem alterar o JSON versionado.
 
 ### Fase 2 — Catálogo 2D de estilos (backend e frontend)
 
@@ -1153,7 +1264,8 @@ de cada estilo de armário.
 **Critérios de aceite:**
 
 * todos os estilos ativos do JSON são retornados pela API;
-* o frontend apresenta cada estilo em 2D e permite selecioná-lo;
+* o frontend Vue 3, escrito em TypeScript e servido em desenvolvimento pelo
+  Vite, apresenta cada estilo em uma prévia SVG e permite selecioná-lo;
 * estados de carregamento, lista vazia e erro são tratados;
 
 
@@ -1190,7 +1302,7 @@ entrada e calcular peças, materiais, dimensões e posições.
 **Critérios de aceite:**
 
 * a geometria utiliza o mesmo resultado validado que originou a lista de peças;
-* o desenho apresenta estrutura, divisões, componentes e portas nas posições calculadas;
+* o desenho SVG apresenta estrutura, divisões, componentes e portas nas posições calculadas;
 * alterações de dimensões seguidas de novo cálculo atualizam a representação.
 
 ### Fase 6 — Representação 3D do móvel (backend e frontend)
@@ -1201,7 +1313,7 @@ entrada e calcular peças, materiais, dimensões e posições.
 
 * a geometria 3D corresponde às dimensões e posições das peças calculadas;
 * o usuário pode rotacionar, aplicar zoom e inspecionar o móvel;
-* a renderização permanece responsabilidade do frontend, preferencialmente com Three.js.
+* a cena e a renderização permanecem responsabilidade do frontend Vue e utilizam Three.js.
 
 ### Fase 7 — Plano de corte (backend e frontend)
 

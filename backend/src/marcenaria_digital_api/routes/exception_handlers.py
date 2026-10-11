@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from marcenaria_digital_api.entities.exceptions import (
     ConfiguracaoDuplicadaError,
     ConfiguracaoInvalidaError,
+    ConfiguracaoNaoEncontradaError,
     FalhaPersistenciaError,
 )
 
@@ -26,10 +27,24 @@ class ConfiguracaoInvalidaResponse(BaseModel):
     detalhes: list[DetalheErroResponse]
 
 
+class RequisicaoInvalidaResponse(BaseModel):
+    """Representa uma requisição de consulta estruturalmente inválida."""
+
+    erro: Literal["requisicao_invalida"] = "requisicao_invalida"
+    detalhes: list[DetalheErroResponse]
+
+
 class ConfiguracaoDuplicadaResponse(BaseModel):
     """Representa a resposta para um identificador duplicado."""
 
     erro: Literal["configuracao_duplicada"] = "configuracao_duplicada"
+    mensagem: str
+
+
+class ConfiguracaoNaoEncontradaResponse(BaseModel):
+    """Representa a ausência de uma configuração ativa no catálogo."""
+
+    erro: Literal["configuracao_nao_encontrada"] = "configuracao_nao_encontrada"
     mensagem: str
 
 
@@ -45,7 +60,7 @@ def registrar_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def tratar_erro_estrutural(
-        _request: Request, erro: RequestValidationError
+        request: Request, erro: RequestValidationError
     ) -> JSONResponse:
         """Converte erros estruturais da requisição em resposta padronizada."""
         detalhes = []
@@ -57,9 +72,14 @@ def registrar_exception_handlers(app: FastAPI) -> None:
                     "mensagem": _mensagem_validacao(item["type"]),
                 }
             )
+        codigo_erro = (
+            "requisicao_invalida"
+            if request.method == "GET"
+            else "configuracao_invalida"
+        )
         return JSONResponse(
             status_code=422,
-            content={"erro": "configuracao_invalida", "detalhes": detalhes},
+            content={"erro": codigo_erro, "detalhes": detalhes},
         )
 
     @app.exception_handler(ConfiguracaoInvalidaError)
@@ -86,6 +106,19 @@ def registrar_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=409,
             content={"erro": "configuracao_duplicada", "mensagem": str(erro)},
+        )
+
+    @app.exception_handler(ConfiguracaoNaoEncontradaError)
+    async def tratar_configuracao_nao_encontrada(
+        _request: Request, erro: ConfiguracaoNaoEncontradaError
+    ) -> JSONResponse:
+        """Converte configuração ausente ou inativa em resposta HTTP 404."""
+        return JSONResponse(
+            status_code=404,
+            content={
+                "erro": "configuracao_nao_encontrada",
+                "mensagem": str(erro),
+            },
         )
 
     @app.exception_handler(FalhaPersistenciaError)

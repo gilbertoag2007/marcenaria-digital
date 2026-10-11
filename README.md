@@ -6,7 +6,7 @@
 
 ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-F2A900?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-FastAPI-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Angular](https://img.shields.io/badge/Frontend-Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+![Vue](https://img.shields.io/badge/Frontend-Vue%203-42B883?style=for-the-badge&logo=vuedotjs&logoColor=white)
 
 </div>
 
@@ -33,7 +33,8 @@ O objetivo é substituir cálculos manuais, reduzir erros e desperdícios e torn
 | Área | Tecnologias planejadas |
 |---|---|
 | Backend | Python, FastAPI e API REST |
-| Frontend | Angular |
+| Frontend | Vue 3, TypeScript e Vite |
+| Visualização 2D | SVG |
 | Visualização 3D | Three.js |
 | Persistência | JSON e PostgreSQL |
 | Infraestrutura | Docker |
@@ -51,6 +52,20 @@ Configurar o móvel → Validar medidas → Calcular peças e materiais
 O desenvolvimento foi dividido em entregas progressivas: configurações e catálogo de estilos, cálculo do móvel, resultados e visualizações, plano de corte, persistência em banco de dados e geração de documentos.
 
 Consulte o [PRD](PRD.md) para conhecer os requisitos, as regras de negócio e o roadmap completo do produto.
+
+## Execução da Fase 2
+
+Inicie o backend conforme as instruções em `backend/README.md`. Em outro
+terminal, execute:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+O catálogo ficará disponível em `http://localhost:5173` e encaminhará as
+requisições locais para a API em `http://127.0.0.1:8000`.
 
 ---
 

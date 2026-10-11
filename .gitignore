@@ -15,3 +15,8 @@ __pycache__/
 .env.*
 !.env.example
 *.pyc
+
+# Frontend
+node_modules/
+dist/
+coverage/

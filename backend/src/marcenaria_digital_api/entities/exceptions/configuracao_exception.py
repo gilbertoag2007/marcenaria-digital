@@ -25,5 +25,15 @@ class ConfiguracaoDuplicadaError(ValueError):
         super().__init__(f"Já existe uma configuração com o id {configuracao_id}.")
 
 
+class ConfiguracaoNaoEncontradaError(LookupError):
+    """Indica que uma configuração ativa não está disponível no catálogo."""
+
+    def __init__(self, configuracao_id: int) -> None:
+        self.configuracao_id = configuracao_id
+        super().__init__(
+            f"Não existe configuração ativa com o id {configuracao_id}."
+        )
+
+
 class FalhaPersistenciaError(RuntimeError):
     """Falha técnica ao ler ou gravar a fonte de dados."""

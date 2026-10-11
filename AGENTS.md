@@ -6,8 +6,9 @@ de verdade para escopo, regras de negócio e critérios de aceite.
 
 ## Estado atual do projeto
 
-- O desenvolvimento é incremental e está atualmente na Fase 1.
+- O desenvolvimento é incremental e está atualmente na Fase 2.
 - O backend utiliza Python 3.12, FastAPI, Pydantic 2 e pytest.
+- O frontend utiliza Vue 3, TypeScript, Vite e SVG.
 - Até a Fase 7, as configurações são persistidas no arquivo JSON versionado.
 - Não antecipe componentes, persistência ou funcionalidades previstos para fases
   futuras.
@@ -65,8 +66,10 @@ routes --> services --> repositories
 - Adicione ou atualize testes quando uma mudança alterar comportamento.
 - Cubra o fluxo esperado e os erros relevantes, especialmente validação,
   persistência e respostas HTTP.
-- Confirme os critérios em `specs/fase-1/` para mudanças da fase atual.
-- Execute a suíte completa do backend antes de concluir uma alteração.
+- Confirme os critérios em `specs/fase-1/` e `specs/fase-2/` para mudanças da
+  fase atual.
+- Execute as suítes completas do backend e do frontend antes de concluir uma
+  alteração.
 
 ## Comandos do backend
 
@@ -89,6 +92,17 @@ Execução local:
 
 ```powershell
 .\.venv\Scripts\python.exe -m uvicorn marcenaria_digital_api.main:app --reload
+```
+
+## Comandos do frontend
+
+Execute os comandos a partir de `frontend/`.
+
+```powershell
+npm install
+npm run dev
+npm test
+npm run build
 ```
 
 ## Cuidados ao alterar o repositório

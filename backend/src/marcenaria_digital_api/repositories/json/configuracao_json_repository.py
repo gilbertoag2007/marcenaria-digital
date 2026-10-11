@@ -176,6 +176,17 @@ class ConfiguracaoJsonRepository:
                         return item.para_entidade()
         return None
 
+    def listar_ativas(self) -> list[Configuracao]:
+        """Lista as configurações ativas preservando a ordem do arquivo JSON."""
+        with self._lock:
+            with self._bloqueio_entre_processos():
+                arquivo = self._ler()
+                return [
+                    item.para_entidade()
+                    for item in arquivo.configuracoes
+                    if item.ativo
+                ]
+
     @contextmanager
     def _bloqueio_entre_processos(self) -> Iterator[None]:
         """Serializa o ciclo completo de leitura e gravação entre workers."""

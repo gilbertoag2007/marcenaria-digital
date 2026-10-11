@@ -18,6 +18,8 @@ def test_cria_configuracao_e_documenta_contrato(
     openapi = cliente.get("/openapi.json").json()
     operacao = openapi["paths"]["/api/v1/configuracoes"]["post"]
     assert set(operacao["responses"]) >= {"201", "409", "422", "500"}
+    schema_422 = operacao["responses"]["422"]["content"]["application/json"]["schema"]
+    assert schema_422["$ref"].endswith("/ConfiguracaoInvalidaResponse")
     propriedades = openapi["components"]["schemas"]["ConfiguracaoInput"]["properties"]
     assert {
         "altura_minima_cm",

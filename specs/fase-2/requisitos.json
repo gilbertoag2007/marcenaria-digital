@@ -1,0 +1,51 @@
+{
+  "spec": "fase-2-requisitos",
+  "versao": 2,
+  "fase": 2,
+  "depende_de": [
+    "fase-1"
+  ],
+  "objetivo": "Recuperar as configurações ativas e apresentar um catálogo selecionável com prévias 2D dos estilos de armário.",
+  "escopo": {
+    "inclui": [
+      "endpoints públicos de consulta de configurações ativas",
+      "endpoint de consulta dos estilos que possuem configurações ativas",
+      "extensão do repositório JSON para listar configurações ativas",
+      "frontend Vue 3 com TypeScript e Vite para o catálogo de estilos",
+      "prévia SVG baseada em percentuais de ocupação e relações espaciais",
+      "seleção de uma configuração pelo usuário",
+      "estados de carregamento, lista vazia e erro"
+    ],
+    "nao_inclui": [
+      "criação ou edição de configurações pelo frontend",
+      "cálculo de móveis, peças ou materiais",
+      "representação dimensional de um móvel",
+      "visualização 3D",
+      "persistência da seleção do usuário",
+      "banco de dados"
+    ]
+  },
+  "requisitos_funcionais": [
+    {
+      "id": "RF04",
+      "descricao": "Listar pela API todas as configurações ativas gravadas no JSON, disponibilizando seus limites dimensionais, detalhes, percentuais e relações espaciais."
+    },
+    {
+      "id": "RF05",
+      "descricao": "Apresentar no frontend Vue uma prévia SVG de cada configuração ativa e permitir que o usuário selecione uma delas."
+    }
+  ],
+  "restricoes": [
+    "Os contratos entregues na Fase 1 devem permanecer compatíveis.",
+    "Somente configurações com ativo igual a true podem aparecer no catálogo público.",
+    "A prévia 2D representa a organização relativa do estilo e não as dimensões físicas de um móvel calculado.",
+    "Vue 3 deve controlar os componentes e o estado da interface, com contratos tipados em TypeScript e execução e build pelo Vite.",
+    "A prévia da Fase 2 deve utilizar SVG; Three.js permanece reservado à visualização 3D da Fase 6.",
+    "O frontend deve consumir os dados fornecidos pelo FastAPI e não pode duplicar regras de negócio ou de engenharia do móvel.",
+    "A seleção deve identificar inequivocamente a configuração pelo id.",
+    "O arquivo JSON continua sendo a única fonte de verdade.",
+    "Nenhum dado de móvel ou seleção deve ser persistido.",
+    "As rotas devem chamar serviços e não podem acessar repositórios diretamente.",
+    "A solução não deve depender de banco de dados nem de conexão externa."
+  ]
+}

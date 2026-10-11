@@ -13,3 +13,7 @@ class ConfiguracaoRepository(Protocol):
     def obter_por_id(self, configuracao_id: int) -> Configuracao | None:
         """Obtém uma configuração pelo identificador, quando existente."""
         ...
+
+    def listar_ativas(self) -> list[Configuracao]:
+        """Lista as configurações ativas na ordem da fonte de dados."""
+        ...

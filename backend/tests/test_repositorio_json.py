@@ -38,6 +38,19 @@ def test_nao_duplica_id(arquivo_configuracoes: Path, payload_valido: dict) -> No
     assert len(json.loads(arquivo_configuracoes.read_text())["configuracoes"]) == 1
 
 
+def test_lista_somente_configuracoes_ativas_na_ordem(
+    arquivo_configuracoes: Path, payload_valido: dict
+) -> None:
+    repositorio = ConfiguracaoJsonRepository(arquivo_configuracoes)
+    for configuracao_id, ativo in ((3, True), (1, False), (2, True)):
+        payload = {**payload_valido, "id": configuracao_id, "ativo": ativo}
+        repositorio.adicionar(ConfiguracaoInput.model_validate(payload).para_entidade())
+
+    configuracoes = repositorio.listar_ativas()
+
+    assert [configuracao.id for configuracao in configuracoes] == [3, 2]
+
+
 def test_preserva_original_quando_substituicao_falha(
     arquivo_configuracoes: Path, payload_valido: dict, monkeypatch: pytest.MonkeyPatch
 ) -> None:

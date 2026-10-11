@@ -1,0 +1,45 @@
+{
+  "spec": "fase-2-dominio",
+  "versao": 2,
+  "fase": 2,
+  "modelo": {
+    "novas_entidades_persistidas": [],
+    "entidades_reutilizadas": [
+      "Configuracao",
+      "DetalheConfiguracao"
+    ],
+    "enums_reutilizados": [
+      "TipoMovel",
+      "EstiloMovel",
+      "TipoConfiguracao"
+    ],
+    "observacao": "Os campos e invariantes das entidades permanecem definidos em specs/fase-1/dominio.json."
+  },
+  "conceitos": {
+    "CatalogoEstilos": {
+      "descricao": "Visão somente de leitura formada pelas configurações ativas recuperadas do JSON.",
+      "itens": "list[Configuracao] com ativo igual a true"
+    },
+    "PreviaEstilo2D": {
+      "descricao": "Representação visual normalizada dos detalhes de uma configuração.",
+      "origem": "percentuais de ocupação e relações espaciais de DetalheConfiguracao",
+      "renderizacao": "SVG",
+      "persistida": false
+    },
+    "SelecaoConfiguracao": {
+      "descricao": "Estado transitório do frontend que identifica a configuração escolhida.",
+      "campo": "configuracao_id: int positivo",
+      "persistida": false
+    }
+  },
+  "regras": [
+    "Configurações inativas não podem ser exibidas nem selecionadas no catálogo.",
+    "Cada opção do catálogo corresponde a uma configuração ativa e mantém seu id original.",
+    "A prévia deve representar compartimentos, portas e suas posições relativas.",
+    "Os percentuais de ocupação devem ser usados em escala normalizada no espaço visual disponível.",
+    "Os limites mínimos e máximos podem ser apresentados como informações do estilo, mas não dimensionam a prévia.",
+    "O FastAPI é a fonte dos dados usados para construir a prévia; o frontend não redefine as regras do domínio.",
+    "A prévia não cria entidades de móvel, peças, materiais ou posições tridimensionais.",
+    "A seleção permanece somente no estado transitório do frontend nesta fase."
+  ]
+}
