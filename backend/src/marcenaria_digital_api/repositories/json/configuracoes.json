@@ -110,6 +110,94 @@
           "a_esquerda_de_id": null
         }
       ]
+    },
+    {
+      "id": 2,
+      "tipo": "ARMARIO",
+      "estilo": "MULTIUSO",
+      "altura_minima_cm": 100.0,
+      "altura_maxima_cm": 200.0,
+      "largura_minima_cm": 60.0,
+      "largura_maxima_cm": 100.0,
+      "profundidade_minima_cm": 40.0,
+      "profundidade_maxima_cm": 50.0,
+      "ativo": true,
+      "detalhes": [
+        {
+          "id": 1,
+          "tipo": "COMPARTIMENTO",
+          "percentual_ocupacao_vertical": 100.0,
+          "percentual_ocupacao_horizontal": 50.0,
+          "quantidade_portas": 1,
+          "abertura_porta": "ABERTURA HORIZONTAL",
+          "em_cima_de_id": null,
+          "embaixo_de_id": null,
+          "a_direita_de_id": null,
+          "a_esquerda_de_id": 2
+        },
+        {
+          "id": 2,
+          "tipo": "COMPARTIMENTO",
+          "percentual_ocupacao_vertical": 100.0,
+          "percentual_ocupacao_horizontal": 50.0,
+          "quantidade_portas": 1,
+          "abertura_porta": "ABERTURA HORIZONTAL",
+          "em_cima_de_id": null,
+          "embaixo_de_id": null,
+          "a_direita_de_id": 1,
+          "a_esquerda_de_id": null
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "tipo": "ARMARIO",
+      "estilo": "ARMARIO_AEREO",
+      "altura_minima_cm": 80.0,
+      "altura_maxima_cm": 150.0,
+      "largura_minima_cm": 100.0,
+      "largura_maxima_cm": 200.0,
+      "profundidade_minima_cm": 40.0,
+      "profundidade_maxima_cm": 50.0,
+      "ativo": true,
+      "detalhes": [
+        {
+          "id": 1,
+          "tipo": "COMPARTIMENTO",
+          "percentual_ocupacao_vertical": 50.0,
+          "percentual_ocupacao_horizontal": 100.0,
+          "quantidade_portas": 1,
+          "abertura_porta": "ABERTURA VERTICAL",
+          "em_cima_de_id": null,
+          "embaixo_de_id": null,
+          "a_direita_de_id": null,
+          "a_esquerda_de_id": null
+        },
+        {
+          "id": 2,
+          "tipo": "COMPARTIMENTO",
+          "percentual_ocupacao_vertical": 50.0,
+          "percentual_ocupacao_horizontal": 100.0,
+          "quantidade_portas": 0,
+          "abertura_porta": null,
+          "em_cima_de_id": null,
+          "embaixo_de_id": 1,
+          "a_direita_de_id": null,
+          "a_esquerda_de_id": null
+        },
+        {
+          "id": 3,
+          "tipo": "PORTA",
+          "percentual_ocupacao_vertical": 100.0,
+          "percentual_ocupacao_horizontal": 100.0,
+          "quantidade_portas": null,
+          "abertura_porta": null,
+          "em_cima_de_id": null,
+          "embaixo_de_id": null,
+          "a_direita_de_id": null,
+          "a_esquerda_de_id": null
+        }
+      ]
     }
   ]
 }
