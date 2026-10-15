@@ -37,7 +37,7 @@ def test_rejeita_quantidade_de_portas_invalida_no_dominio(
 @pytest.mark.parametrize(
     ("quantidade", "abertura", "campo"),
     [
-        (0, "ABERTURA VERTICAL", "abertura_porta"),
+        (0, "ABERTURA VERTICAL PARA DIREITA", "abertura_porta"),
         (1, None, "abertura_porta"),
         (None, None, "quantidade_portas"),
     ],
@@ -122,7 +122,7 @@ def test_rejeita_relacao_inversa_incoerente(payload_valido: dict) -> None:
             "percentual_ocupacao_vertical": 10.0,
             "percentual_ocupacao_horizontal": 10.0,
             "quantidade_portas": 1,
-            "abertura_porta": "ABERTURA VERTICAL",
+            "abertura_porta": "ABERTURA VERTICAL PARA DIREITA",
         }
     )
     payload_valido["detalhes"][1]["embaixo_de_id"] = 30

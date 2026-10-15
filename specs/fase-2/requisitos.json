@@ -1,18 +1,20 @@
 {
   "spec": "fase-2-requisitos",
-  "versao": 3,
+  "versao": 4,
   "fase": 2,
   "depende_de": [
     "fase-1"
   ],
-  "objetivo": "Recuperar as configurações ativas e apresentar um catálogo selecionável com prévias 2D dos estilos de armário.",
+  "objetivo": "Recuperar as configurações ativas e apresentar um catálogo selecionável com prévias 2D dos layouts interno e externo dos estilos de armário.",
   "escopo": {
     "inclui": [
       "endpoints públicos de consulta de configurações ativas",
       "endpoint de consulta dos estilos que possuem configurações ativas",
       "extensão do repositório JSON para listar configurações ativas",
       "frontend Vue 3 com TypeScript e Vite para o catálogo de estilos",
-      "prévia SVG baseada em percentuais de ocupação e relações espaciais",
+      "prévia SVG do Layout Interno baseada nos compartimentos, percentuais de ocupação e relações espaciais",
+      "prévia SVG do Layout Externo baseada na quantidade, orientação e disposição das portas",
+      "quantidades de compartimentos e portas na coluna Elementos",
       "seleção de uma configuração pelo usuário",
       "estados de carregamento, lista vazia e erro"
     ],
@@ -32,13 +34,16 @@
     },
     {
       "id": "RF05",
-      "descricao": "Apresentar no frontend Vue uma prévia SVG de cada configuração ativa e permitir que o usuário selecione uma delas."
+      "descricao": "Apresentar no frontend Vue as prévias SVG de Layout Interno e Layout Externo de cada configuração ativa, informar as quantidades de compartimentos e portas e permitir que o usuário selecione uma configuração."
     }
   ],
   "restricoes": [
     "Os contratos entregues na Fase 1 devem permanecer compatíveis.",
     "Somente configurações com ativo igual a true podem aparecer no catálogo público.",
-    "A prévia 2D representa a organização relativa do estilo e não as dimensões físicas de um móvel calculado.",
+    "As prévias 2D representam a organização relativa do estilo e não as dimensões físicas de um móvel calculado.",
+    "O Layout Interno deve representar somente os compartimentos, preservar suas divisões e usar a mesma paleta em todas as configurações.",
+    "O Layout Externo deve representar as portas; múltiplas portas de um compartimento devem formar folhas iguais no eixo correspondente à orientação da abertura.",
+    "A coluna Elementos deve contar somente detalhes COMPARTIMENTO como compartimentos e exibir separadamente o total de portas informado por esses detalhes.",
     "Vue 3 deve controlar os componentes e o estado da interface, com contratos tipados em TypeScript e execução e build pelo Vite.",
     "A prévia da Fase 2 deve utilizar SVG; Three.js permanece reservado à visualização 3D da Fase 6.",
     "O frontend deve consumir os dados fornecidos pelo FastAPI e não pode duplicar regras de negócio ou de engenharia do móvel.",

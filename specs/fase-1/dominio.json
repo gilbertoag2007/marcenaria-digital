@@ -1,6 +1,6 @@
 {
   "spec": "fase-1-dominio",
-  "versao": 3,
+  "versao": 4,
   "fase": 1,
   "entidades": {
     "Configuracao": {
@@ -48,8 +48,10 @@
       "PORTA"
     ],
     "AberturaPorta": [
-      "ABERTURA VERTICAL",
-      "ABERTURA HORIZONTAL"
+      "ABERTURA VERTICAL PARA DIREITA",
+      "ABERTURA VERTICAL PARA ESQUERDA",
+      "ABERTURA HORIZONTAL PARA CIMA",
+      "ABERTURA HORIZONTAL PARA BAIXO"
     ]
   },
   "invariantes": [
@@ -58,7 +60,7 @@
     "Os limites mínimos de altura, largura e profundidade não podem superar os respectivos limites máximos.",
     "Os ids dos detalhes devem ser únicos dentro da configuração.",
     "Detalhes do tipo COMPARTIMENTO devem informar uma quantidade de portas inteira entre 0 e 10, inclusive.",
-    "Quando um COMPARTIMENTO possuir uma ou mais portas, sua abertura deve ser ABERTURA VERTICAL ou ABERTURA HORIZONTAL.",
+    "Quando um COMPARTIMENTO possuir uma ou mais portas, sua abertura deve ser ABERTURA VERTICAL PARA DIREITA, ABERTURA VERTICAL PARA ESQUERDA, ABERTURA HORIZONTAL PARA CIMA ou ABERTURA HORIZONTAL PARA BAIXO.",
     "Quando um COMPARTIMENTO possuir zero portas, sua abertura não deve ser informada.",
     "Detalhes do tipo PORTA não devem informar quantidade_portas nem abertura_porta.",
     "Toda referência espacial deve apontar para um detalhe existente na mesma configuração.",

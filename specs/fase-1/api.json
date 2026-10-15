@@ -1,6 +1,6 @@
 {
   "spec": "fase-1-api",
-  "versao": 4,
+  "versao": 5,
   "fase": 1,
   "base_path": "/api/v1",
   "endpoints": [
@@ -28,7 +28,7 @@
               "percentual_ocupacao_vertical": "float entre 0 exclusivo e 100 inclusivo",
               "percentual_ocupacao_horizontal": "float entre 0 exclusivo e 100 inclusivo",
               "quantidade_portas": "int entre 0 e 10 para COMPARTIMENTO | null para PORTA",
-              "abertura_porta": "ABERTURA VERTICAL | ABERTURA HORIZONTAL quando quantidade_portas for positiva | null quando a quantidade for zero ou o tipo for PORTA",
+              "abertura_porta": "ABERTURA VERTICAL PARA DIREITA | ABERTURA VERTICAL PARA ESQUERDA | ABERTURA HORIZONTAL PARA CIMA | ABERTURA HORIZONTAL PARA BAIXO quando quantidade_portas for positiva | null quando a quantidade for zero ou o tipo for PORTA",
               "em_cima_de_id": "int positivo ou null",
               "embaixo_de_id": "int positivo ou null",
               "a_direita_de_id": "int positivo ou null",

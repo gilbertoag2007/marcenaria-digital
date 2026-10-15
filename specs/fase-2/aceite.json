@@ -1,6 +1,6 @@
 {
   "spec": "fase-2-aceite",
-  "versao": 3,
+  "versao": 4,
   "fase": 2,
   "cenarios": [
     {
@@ -43,13 +43,13 @@
       "id": "AC07",
       "dado": "configurações ativas retornadas pela API",
       "quando": "o catálogo for apresentado",
-      "entao": "o frontend Vue exibe uma opção e uma prévia SVG para cada configuração"
+      "entao": "o frontend Vue exibe uma opção e as prévias SVG de Layout Interno e Layout Externo para cada configuração"
     },
     {
       "id": "AC08",
-      "dado": "uma prévia 2D de estilo",
-      "quando": "ela for renderizada",
-      "entao": "o SVG apresenta compartimentos e portas respeitando os percentuais e as relações espaciais sem representar dimensões de um móvel calculado"
+      "dado": "uma configuração com compartimentos e uma porta externa sobreposta",
+      "quando": "o Layout Interno for renderizado",
+      "entao": "o SVG apresenta somente os compartimentos com paleta uniforme e mantém visíveis suas divisões, sem representar dimensões de um móvel calculado"
     },
     {
       "id": "AC09",
@@ -86,6 +86,18 @@
       "dado": "configurações ativas com quantidade e abertura de portas aplicáveis somente aos compartimentos",
       "quando": "o catálogo for carregado",
       "entao": "o frontend recebe os atributos tipados e apresenta a quantidade total de portas"
+    },
+    {
+      "id": "AC15",
+      "dado": "uma configuração com portas declaradas nos compartimentos ou detalhes do tipo PORTA",
+      "quando": "o Layout Externo for renderizado",
+      "entao": "o SVG apresenta retângulos para as portas e divide quantidades maiores que uma em folhas iguais conforme a orientação vertical ou horizontal"
+    },
+    {
+      "id": "AC16",
+      "dado": "uma configuração com detalhes COMPARTIMENTO e PORTA",
+      "quando": "a coluna Elementos for apresentada",
+      "entao": "o título da coluna permanece Elementos e a célula informa separadamente a quantidade de compartimentos e o total de portas declarado nos compartimentos"
     }
   ]
 }

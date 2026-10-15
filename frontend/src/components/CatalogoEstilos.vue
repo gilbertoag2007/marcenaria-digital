@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from "vue";
 import { listarConfiguracoesAtivas } from "../services/configuracoesApi";
 import type { Configuracao, EstiloMovel } from "../types/configuracao";
 import PreviaEstilo2D from "./PreviaEstilo2D.vue";
+import PreviaPortas2D from "./PreviaPortas2D.vue";
 
 const ROTULOS_ESTILO: Record<EstiloMovel, string> = {
   MULTIUSO: "Armário multiuso",
@@ -75,6 +76,13 @@ function contarPortas(configuracao: Configuracao): number {
   );
 }
 
+/** Conta os compartimentos informados nos detalhes de uma configuração. */
+function contarCompartimentos(configuracao: Configuracao): number {
+  return configuracao.detalhes.filter(
+    (detalhe) => detalhe.tipo === "COMPARTIMENTO",
+  ).length;
+}
+
 onMounted(carregarCatalogo);
 </script>
 
@@ -133,7 +141,8 @@ onMounted(carregarCatalogo);
         <table>
           <thead>
             <tr>
-              <th>Configuração</th>
+              <th>Layout Interno</th>
+              <th>Layout Externo</th>
               <th>Tipo de móvel</th>
               <th>Estilo</th>
               <th>Faixas dimensionais</th>
@@ -148,13 +157,21 @@ onMounted(carregarCatalogo);
               :key="configuracao.id"
               :class="{ 'linha--selecionada': configuracaoSelecionadaId === configuracao.id }"
             >
-              <td data-label="Configuração">
+              <td data-label="Layout Interno">
                 <div class="miniatura">
                   <PreviaEstilo2D
                     :detalhes="configuracao.detalhes"
                     :descricao="`Prévia da configuração ${configuracao.id}: ${ROTULOS_ESTILO[configuracao.estilo]}`"
                   />
                   <span>#{{ configuracao.id }}</span>
+                </div>
+              </td>
+              <td data-label="Layout Externo">
+                <div class="miniatura">
+                  <PreviaPortas2D
+                    :detalhes="configuracao.detalhes"
+                    :descricao="`Prévia externa da configuração ${configuracao.id}: ${ROTULOS_ESTILO[configuracao.estilo]}`"
+                  />
                 </div>
               </td>
               <td data-label="Tipo de móvel">{{ configuracao.tipo }}</td>
@@ -176,8 +193,8 @@ onMounted(carregarCatalogo);
                 </dl>
               </td>
               <td data-label="Elementos">
-                {{ configuracao.detalhes.length }}
-                {{ configuracao.detalhes.length === 1 ? "elemento" : "elementos" }}
+                {{ contarCompartimentos(configuracao) }}
+                {{ contarCompartimentos(configuracao) === 1 ? "compartimento" : "compartimentos" }}
                 <br />
                 {{ contarPortas(configuracao) }}
                 {{ contarPortas(configuracao) === 1 ? "porta" : "portas" }}

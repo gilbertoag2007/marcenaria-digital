@@ -33,6 +33,13 @@ def test_cria_configuracao_e_documenta_contrato(
         "DetalheConfiguracaoInput"
     ]["properties"]
     assert {"quantidade_portas", "abertura_porta"} <= propriedades_detalhe.keys()
+    valores_abertura = openapi["components"]["schemas"]["AberturaPorta"]["enum"]
+    assert valores_abertura == [
+        "ABERTURA VERTICAL PARA DIREITA",
+        "ABERTURA VERTICAL PARA ESQUERDA",
+        "ABERTURA HORIZONTAL PARA CIMA",
+        "ABERTURA HORIZONTAL PARA BAIXO",
+    ]
 
 
 def test_aceita_limites_da_quantidade_de_portas(
@@ -50,7 +57,9 @@ def test_aceita_limites_da_quantidade_de_portas(
 
     payload_valido["id"] = 2
     payload_valido["detalhes"][0]["quantidade_portas"] = 10
-    payload_valido["detalhes"][0]["abertura_porta"] = "ABERTURA HORIZONTAL"
+    payload_valido["detalhes"][0]["abertura_porta"] = (
+        "ABERTURA HORIZONTAL PARA BAIXO"
+    )
 
     resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
 
@@ -107,7 +116,9 @@ def test_rejeita_atributos_de_porta_em_detalhe_do_tipo_porta(
     """Restringe quantidade e abertura aos detalhes do tipo compartimento."""
     cliente = TestClient(create_app(arquivo_configuracoes))
     payload_valido["detalhes"][1]["quantidade_portas"] = 1
-    payload_valido["detalhes"][1]["abertura_porta"] = "ABERTURA VERTICAL"
+    payload_valido["detalhes"][1]["abertura_porta"] = (
+        "ABERTURA VERTICAL PARA ESQUERDA"
+    )
 
     resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
 

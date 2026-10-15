@@ -9,6 +9,14 @@ export interface RetanguloPrevia {
   altura: number;
 }
 
+export interface RetanguloPortaPrevia {
+  id: string;
+  x: number;
+  y: number;
+  largura: number;
+  altura: number;
+}
+
 interface Posicao {
   x: number;
   y: number;
@@ -78,6 +86,45 @@ export function calcularLayoutPrevia(
         (detalhe.percentual_ocupacao_horizontal / larguraDaFaixa) * 100,
       altura: (detalhe.percentual_ocupacao_vertical / alturaTotal) * 100,
     };
+  });
+}
+
+/** Calcula os retângulos das portas para representar a fachada da configuração. */
+export function calcularLayoutPortasPrevia(
+  detalhes: DetalheConfiguracao[],
+): RetanguloPortaPrevia[] {
+  const retangulosPorId = new Map(
+    calcularLayoutPrevia(detalhes).map((retangulo) => [retangulo.id, retangulo]),
+  );
+
+  return detalhes.flatMap((detalhe) => {
+    const retangulo = retangulosPorId.get(detalhe.id);
+    if (!retangulo) return [];
+
+    if (detalhe.tipo === "PORTA") {
+      return [{ ...retangulo, id: `${detalhe.id}-1` }];
+    }
+
+    if (detalhe.quantidade_portas === 0) return [];
+
+    const aberturaHorizontal = detalhe.abertura_porta.startsWith(
+      "ABERTURA HORIZONTAL",
+    );
+    return Array.from({ length: detalhe.quantidade_portas }, (_, indice) => ({
+      id: `${detalhe.id}-${indice + 1}`,
+      x: aberturaHorizontal
+        ? retangulo.x
+        : retangulo.x + (retangulo.largura / detalhe.quantidade_portas) * indice,
+      y: aberturaHorizontal
+        ? retangulo.y + (retangulo.altura / detalhe.quantidade_portas) * indice
+        : retangulo.y,
+      largura: aberturaHorizontal
+        ? retangulo.largura
+        : retangulo.largura / detalhe.quantidade_portas,
+      altura: aberturaHorizontal
+        ? retangulo.altura / detalhe.quantidade_portas
+        : retangulo.altura,
+    }));
   });
 }
 

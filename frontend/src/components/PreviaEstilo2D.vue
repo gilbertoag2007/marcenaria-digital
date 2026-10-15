@@ -9,12 +9,16 @@ const props = defineProps<{
   descricao: string;
 }>();
 
-const retangulos = computed(() => calcularLayoutPrevia(props.detalhes));
+const retangulos = computed(() =>
+  calcularLayoutPrevia(props.detalhes).filter(
+    (retangulo) => retangulo.tipo === "COMPARTIMENTO",
+  ),
+);
 </script>
 
 <template>
   <svg
-    class="previa"
+    class="previa previa--interna"
     viewBox="0 0 100 100"
     role="img"
     :aria-label="descricao"

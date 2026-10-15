@@ -31,7 +31,7 @@ function configuracao(id: number): Configuracao {
         percentual_ocupacao_vertical: 100,
         percentual_ocupacao_horizontal: 100,
         quantidade_portas: 2,
-        abertura_porta: "ABERTURA VERTICAL",
+        abertura_porta: "ABERTURA VERTICAL PARA DIREITA",
         em_cima_de_id: null,
         embaixo_de_id: null,
         a_direita_de_id: null,
@@ -51,7 +51,11 @@ describe("CatalogoEstilos", () => {
     const wrapper = mount(CatalogoEstilos);
     await flushPromises();
 
-    expect(wrapper.findAll("svg.previa")).toHaveLength(2);
+    expect(wrapper.findAll("svg.previa--interna")).toHaveLength(2);
+    expect(wrapper.findAll("svg.previa--externa")).toHaveLength(2);
+    expect(wrapper.findAll("rect.porta-externa")).toHaveLength(4);
+    expect(wrapper.text()).toContain("Layout Externo");
+    expect(wrapper.text()).toContain("1 compartimento");
     expect(wrapper.text()).toContain("2 portas");
     const botoes = wrapper.findAll("button.botao-selecao");
     await botoes[0].trigger("click");

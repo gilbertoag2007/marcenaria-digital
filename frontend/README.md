@@ -4,7 +4,17 @@ Aplicação Vue 3 com TypeScript e Vite para o catálogo visual de configuraçõ
 O contrato TypeScript usa uma união discriminada para quantidade e abertura de
 portas. Em `COMPARTIMENTO`, a abertura é nula quando a quantidade é zero e
 obrigatória para quantidades de 1 a 10; em `PORTA`, ambos os campos são nulos.
-O catálogo exibe o total de portas por configuração.
+Na lista de configurações cadastradas, cada item apresenta:
+
+- **Layout Interno**: prévia SVG somente dos compartimentos, com paleta uniforme
+  e divisões visíveis mesmo quando existe uma porta externa sobreposta;
+- **Layout Externo**: prévia SVG das portas, dividida em folhas iguais conforme
+  a quantidade e a orientação vertical ou horizontal da abertura;
+- **Elementos**: quantidade de compartimentos e total de portas informado pela
+  configuração.
+
+Detalhes do tipo `PORTA` são desenhados no Layout Externo e não encobrem os
+compartimentos do Layout Interno.
 
 ## Preparação
 

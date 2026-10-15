@@ -27,7 +27,7 @@ class DetalheConfiguracaoInput(BaseModel):
                     "percentual_ocupacao_vertical": 50.0,
                     "percentual_ocupacao_horizontal": 100.0,
                     "quantidade_portas": 2,
-                    "abertura_porta": "ABERTURA VERTICAL",
+                    "abertura_porta": "ABERTURA VERTICAL PARA DIREITA",
                     "em_cima_de_id": 20,
                     "embaixo_de_id": None,
                     "a_direita_de_id": None,
@@ -84,7 +84,7 @@ class DetalheConfiguracaoInput(BaseModel):
             "Direção de abertura, obrigatória quando um COMPARTIMENTO possui "
             "uma ou mais portas e ausente quando a quantidade é zero."
         ),
-        examples=["ABERTURA VERTICAL"],
+        examples=["ABERTURA VERTICAL PARA DIREITA"],
     )
     em_cima_de_id: int | None = Field(
         default=None,
@@ -157,7 +157,7 @@ class ConfiguracaoInput(BaseModel):
                             "percentual_ocupacao_vertical": 50.0,
                             "percentual_ocupacao_horizontal": 100.0,
                             "quantidade_portas": 2,
-                            "abertura_porta": "ABERTURA VERTICAL",
+                            "abertura_porta": "ABERTURA VERTICAL PARA DIREITA",
                             "em_cima_de_id": 20,
                             "embaixo_de_id": None,
                             "a_direita_de_id": None,

@@ -1,6 +1,6 @@
 {
   "spec": "fase-2-frontend",
-  "versao": 3,
+  "versao": 4,
   "fase": 2,
   "tecnologias": {
     "framework": "Vue 3",
@@ -9,7 +9,7 @@
     "renderizacao_2d": "SVG",
     "renderizacao_3d_futura": "Three.js"
   },
-  "objetivo": "Exibir e permitir selecionar configurações ativas por meio de um catálogo com prévias 2D.",
+  "objetivo": "Exibir e permitir selecionar configurações ativas por meio de um catálogo com prévias 2D dos layouts interno e externo.",
   "fonte_de_dados": {
     "principal": "GET /api/v1/configuracoes",
     "detalhe": "GET /api/v1/configuracoes/{id}",
@@ -22,7 +22,11 @@
     },
     {
       "nome": "PreviaEstilo2D",
-      "responsabilidade": "Representar em SVG compartimentos e portas em escala normalizada a partir dos percentuais e relações espaciais."
+      "responsabilidade": "Representar em SVG somente os compartimentos do Layout Interno, em escala normalizada e sem permitir que portas externas ocultem suas divisões."
+    },
+    {
+      "nome": "PreviaPortas2D",
+      "responsabilidade": "Representar em SVG as portas do Layout Externo, dividindo a área do compartimento em folhas iguais conforme a quantidade e a orientação da abertura."
     },
     {
       "nome": "SeletorConfiguracao",
@@ -38,8 +42,10 @@
     "informacoes_por_opcao": [
       "estilo",
       "limites mínimos e máximos de altura, largura e profundidade",
-      "prévia 2D dos detalhes",
-      "quantidade de portas dos detalhes"
+      "prévia SVG do Layout Interno",
+      "prévia SVG do Layout Externo",
+      "quantidade de compartimentos",
+      "quantidade de portas"
     ],
     "selecao": "Exatamente uma configuração pode ficar selecionada por vez; uma nova escolha substitui a anterior."
   },
@@ -50,14 +56,17 @@
     "pronto": "Exibir todas as configurações ativas e permitir a seleção."
   },
   "diretriz_evolucao_visual": {
-    "fase_2": "Usar SVG para as prévias não dimensionais dos estilos.",
+    "fase_2": "Usar SVG para as prévias não dimensionais dos layouts interno e externo dos estilos.",
     "fase_5": "Usar SVG para representar em 2D a geometria dimensional calculada pelo FastAPI.",
     "fase_6": "Usar Three.js em componente Vue próprio para representar em 3D as peças e coordenadas calculadas pelo FastAPI.",
     "fonte_geometria": "FastAPI",
     "responsabilidade_frontend": "Renderizar os dados recebidos sem recalcular peças, dimensões ou coordenadas."
   },
   "regras": [
-    "Não desenhar medidas físicas nem peças calculadas na prévia.",
+    "Não desenhar medidas físicas nem peças calculadas nas prévias.",
+    "O Layout Interno deve desenhar somente detalhes COMPARTIMENTO, com preenchimento uniforme entre configurações e divisões visíveis.",
+    "O Layout Externo deve desenhar detalhes PORTA e portas declaradas por COMPARTIMENTO; quantidades maiores que uma devem ser divididas em folhas iguais conforme a orientação da abertura.",
+    "A coluna Elementos deve manter esse nome e apresentar a quantidade de compartimentos seguida da quantidade de portas.",
     "Não exibir configurações inativas, mesmo que dados inválidos sejam fornecidos ao componente.",
     "Não persistir a seleção no backend, em banco de dados ou no arquivo JSON.",
     "A identidade da seleção deve ser o id da configuração, não apenas o valor do estilo.",

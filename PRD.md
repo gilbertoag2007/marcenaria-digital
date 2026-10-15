@@ -169,9 +169,12 @@ gravadas no JSON e disponibilizar os respectivos detalhes ao frontend.
 #### RF05 — Apresentar estilos em 2D
 
 O frontend deverá apresentar em 2D todos os estilos recuperados, permitindo que
-o usuário visualize suas divisões e selecione um deles. A prévia deverá ser
-renderizada com SVG. Essa representação é uma prévia do estilo, e não a
-representação dimensional de um móvel calculado.
+o usuário visualize suas divisões e selecione um deles. Cada configuração deverá
+possuir duas prévias renderizadas com SVG: **Layout Interno**, com os
+compartimentos e suas divisões, e **Layout Externo**, com os retângulos que
+representam as portas. A coluna **Elementos** deverá informar separadamente as
+quantidades de compartimentos e de portas. Essas representações são prévias do
+estilo, e não a representação dimensional de um móvel calculado.
 
 ### Fase 3 — Configuração e cálculo do móvel (backend e frontend)
 
@@ -350,8 +353,10 @@ As portas deverão ser calculadas de acordo com a quantidade, as dimensões e a
 disposição definidas no projeto. Cada detalhe de configuração deve informar uma
 quantidade inteira de portas entre 0 e 10, inclusive, somente quando seu tipo
 for `COMPARTIMENTO`. Quando a quantidade for maior que zero, a abertura deve ser
-`ABERTURA VERTICAL` ou `ABERTURA HORIZONTAL`; quando for zero, a abertura não
-deve ser informada. Detalhes do tipo `PORTA` não devem informar esses atributos.
+`ABERTURA VERTICAL PARA DIREITA`, `ABERTURA VERTICAL PARA ESQUERDA`,
+`ABERTURA HORIZONTAL PARA CIMA` ou `ABERTURA HORIZONTAL PARA BAIXO`; quando for
+zero, a abertura não deve ser informada. Detalhes do tipo `PORTA` não devem
+informar esses atributos.
 
 ### RN12 — Validação anterior ao cálculo
 
@@ -626,8 +631,10 @@ PORTA
 ### AberturaPorta
 
 ```text
-ABERTURA VERTICAL
-ABERTURA HORIZONTAL
+ABERTURA VERTICAL PARA DIREITA
+ABERTURA VERTICAL PARA ESQUERDA
+ABERTURA HORIZONTAL PARA CIMA
+ABERTURA HORIZONTAL PARA BAIXO
 ```
 
 ### TipoMovel
@@ -813,7 +820,9 @@ marcenaria-digital/
 │       ├── components/
 │       │   ├── CatalogoEstilos.vue
 │       │   ├── CatalogoEstilos.test.ts
-│       │   └── PreviaEstilo2D.vue
+│       │   ├── PreviaEstilo2D.vue
+│       │   ├── PreviaEstilo2D.test.ts
+│       │   └── PreviaPortas2D.vue
 │       ├── services/
 │       │   └── configuracoesApi.ts
 │       ├── types/
@@ -1075,8 +1084,13 @@ tipar os contratos utilizados pelo frontend; e Vite será utilizado para o
 ambiente de desenvolvimento e para a geração do pacote de produção.
 
 As prévias de estilos da Fase 2 e a representação dimensional 2D da Fase 5
-deverão utilizar **SVG**. A visualização 3D da Fase 6 deverá utilizar
-**Three.js**, encapsulada em componentes Vue próprios.
+deverão utilizar **SVG**. Na Fase 2, o Layout Interno deverá mostrar somente os
+compartimentos, com a mesma paleta visual entre configurações e sem sobreposição
+das portas externas. O Layout Externo deverá representar as portas: quantidades
+maiores que uma serão divididas em folhas iguais conforme a orientação vertical
+ou horizontal da abertura, e detalhes do tipo `PORTA` serão representados como
+uma porta. A visualização 3D da Fase 6 deverá utilizar **Three.js**, encapsulada
+em componentes Vue próprios.
 
 O **FastAPI será a fonte de verdade das dimensões, peças e coordenadas**. O
 frontend não deverá duplicar regras de engenharia nem recalcular a geometria do
@@ -1276,14 +1290,20 @@ de armário.
 
 ### Fase 2 — Catálogo 2D de estilos (backend e frontend)
 
-**Objetivo:** recuperar todas as configurações ativas e apresentar uma prévia 2D
-de cada estilo de armário.
+**Objetivo:** recuperar todas as configurações ativas e apresentar as prévias 2D
+interna e externa de cada estilo de armário.
 
 **Critérios de aceite:**
 
 * todos os estilos ativos do JSON são retornados pela API;
 * o frontend Vue 3, escrito em TypeScript e servido em desenvolvimento pelo
-  Vite, apresenta cada estilo em uma prévia SVG e permite selecioná-lo;
+  Vite, apresenta cada estilo em prévias SVG de Layout Interno e Layout Externo
+  e permite selecioná-lo;
+* o Layout Interno apresenta os compartimentos e preserva suas divisões, mesmo
+  quando houver um detalhe de porta sobreposto;
+* o Layout Externo apresenta as portas e divide múltiplas folhas conforme a
+  orientação da abertura;
+* a coluna Elementos apresenta as quantidades de compartimentos e portas;
 * estados de carregamento, lista vazia e erro são tratados;
 
 

@@ -68,10 +68,15 @@ O catálogo ficará disponível em `http://localhost:5173` e encaminhará as
 requisições locais para a API em `http://127.0.0.1:8000`.
 
 Detalhes do tipo `COMPARTIMENTO` expõem `quantidade_portas` (inteiro de 0 a 10).
-Quando a quantidade é positiva, `abertura_porta` deve ser `ABERTURA VERTICAL` ou
-`ABERTURA HORIZONTAL`; quando é zero, a abertura fica nula. Esses atributos não
+Quando a quantidade é positiva, `abertura_porta` deve indicar orientação e
+sentido: `ABERTURA VERTICAL PARA DIREITA`, `ABERTURA VERTICAL PARA ESQUERDA`,
+`ABERTURA HORIZONTAL PARA CIMA` ou `ABERTURA HORIZONTAL PARA BAIXO`. Quando a
+quantidade é zero, a abertura fica nula. Esses atributos não
 se aplicam a detalhes do tipo `PORTA`. O catálogo apresenta a quantidade total
-de portas informada pela configuração.
+de portas informada pela configuração. Na lista de configurações cadastradas,
+**Layout Interno** mostra somente os compartimentos e preserva suas divisões;
+**Layout Externo** mostra as folhas das portas. A coluna **Elementos** informa
+separadamente as quantidades de compartimentos e portas.
 
 ---
 

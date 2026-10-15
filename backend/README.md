@@ -28,14 +28,23 @@ Detalhes do tipo `COMPARTIMENTO` enviados e retornados nesses contratos incluem:
 ```json
 {
   "quantidade_portas": 2,
-  "abertura_porta": "ABERTURA VERTICAL"
+  "abertura_porta": "ABERTURA VERTICAL PARA DIREITA"
 }
 ```
 
 `quantidade_portas` deve ser um inteiro entre 0 e 10, inclusive. Para uma
-quantidade positiva, `abertura_porta` é obrigatória e aceita `ABERTURA VERTICAL`
-ou `ABERTURA HORIZONTAL`. Para quantidade zero, a abertura deve ser nula.
+quantidade positiva, `abertura_porta` é obrigatória e aceita
+`ABERTURA VERTICAL PARA DIREITA`, `ABERTURA VERTICAL PARA ESQUERDA`,
+`ABERTURA HORIZONTAL PARA CIMA` ou `ABERTURA HORIZONTAL PARA BAIXO`. Para
+quantidade zero, a abertura deve ser nula.
 Detalhes do tipo `PORTA` devem manter os dois atributos nulos.
+
+No catálogo da Fase 2, o frontend usa os detalhes retornados pela API para duas
+prévias SVG. O Layout Interno considera os detalhes `COMPARTIMENTO`; o Layout
+Externo representa as portas declaradas nos compartimentos e os detalhes do tipo
+`PORTA`. A coluna Elementos conta os compartimentos separadamente do total de
+portas declarado pelos compartimentos. Essas projeções são somente de leitura e
+não alteram o contrato nem os dados persistidos.
 
 O caminho do arquivo de configurações pode ser sobrescrito pela variável de
 ambiente `MARCENARIA_CONFIGURACOES_JSON_PATH`.

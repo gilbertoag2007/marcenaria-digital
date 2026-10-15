@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { DetalheConfiguracao } from "../types/configuracao";
-import { calcularLayoutPrevia } from "./layoutPrevia";
+import { calcularLayoutPortasPrevia, calcularLayoutPrevia } from "./layoutPrevia";
 
 type RelacoesDetalhe = Partial<
   Pick<
@@ -95,5 +95,46 @@ describe("calcularLayoutPrevia", () => {
     expect(larguraTotal(faixaSuperior)).toBeCloseTo(
       larguraTotal(faixaInferior),
     );
+  });
+});
+
+describe("calcularLayoutPortasPrevia", () => {
+  it("divide portas verticais pela largura do compartimento", () => {
+    const compartimento = detalhe(1, 100, 100);
+    compartimento.quantidade_portas = 2;
+    compartimento.abertura_porta = "ABERTURA VERTICAL PARA DIREITA";
+
+    const resultado = calcularLayoutPortasPrevia([compartimento]);
+
+    expect(resultado).toHaveLength(2);
+    expect(resultado[0].largura).toBeCloseTo(50);
+    expect(resultado[1].x).toBeCloseTo(50);
+  });
+
+  it("divide portas horizontais pela altura do compartimento", () => {
+    const compartimento = detalhe(1, 100, 100);
+    compartimento.quantidade_portas = 2;
+    compartimento.abertura_porta = "ABERTURA HORIZONTAL PARA CIMA";
+
+    const resultado = calcularLayoutPortasPrevia([compartimento]);
+
+    expect(resultado).toHaveLength(2);
+    expect(resultado[0].altura).toBeCloseTo(50);
+    expect(resultado[1].y).toBeCloseTo(50);
+  });
+
+  it("representa detalhes do tipo porta e ignora compartimentos sem portas", () => {
+    const semPorta = detalhe(1, 50, 100);
+    const porta: DetalheConfiguracao = {
+      ...detalhe(2, 50, 100, { a_direita_de_id: 1 }),
+      tipo: "PORTA",
+      quantidade_portas: null,
+      abertura_porta: null,
+    };
+
+    const resultado = calcularLayoutPortasPrevia([semPorta, porta]);
+
+    expect(resultado).toHaveLength(1);
+    expect(resultado[0].id).toBe("2-1");
   });
 });
