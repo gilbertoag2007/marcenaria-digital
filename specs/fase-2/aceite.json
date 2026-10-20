@@ -1,6 +1,6 @@
 {
   "spec": "fase-2-aceite",
-  "versao": 4,
+  "versao": 10,
   "fase": 2,
   "cenarios": [
     {
@@ -49,7 +49,7 @@
       "id": "AC08",
       "dado": "uma configuração com compartimentos e uma porta externa sobreposta",
       "quando": "o Layout Interno for renderizado",
-      "entao": "o SVG apresenta somente os compartimentos com paleta uniforme e mantém visíveis suas divisões, sem representar dimensões de um móvel calculado"
+      "entao": "o SVG apresenta os compartimentos com paleta uniforme, mantém visíveis suas divisões e representa os acabamentos configurados em suas bordas, sem representar dimensões de um móvel calculado"
     },
     {
       "id": "AC09",
@@ -83,21 +83,33 @@
     },
     {
       "id": "AC14",
-      "dado": "configurações ativas com quantidade e abertura de portas aplicáveis somente aos compartimentos",
+      "dado": "configurações ativas com cada porta representada na coleção portas",
       "quando": "o catálogo for carregado",
       "entao": "o frontend recebe os atributos tipados e apresenta a quantidade total de portas"
     },
     {
       "id": "AC15",
-      "dado": "uma configuração com portas declaradas nos compartimentos ou detalhes do tipo PORTA",
+      "dado": "uma configuração com itens na coleção portas",
       "quando": "o Layout Externo for renderizado",
-      "entao": "o SVG apresenta retângulos para as portas e divide quantidades maiores que uma em folhas iguais conforme a orientação vertical ou horizontal"
+      "entao": "o SVG apresenta um retângulo para cada item da coleção portas conforme sua ocupação e suas relações espaciais"
     },
     {
       "id": "AC16",
-      "dado": "uma configuração com detalhes COMPARTIMENTO e PORTA",
-      "quando": "a coluna Elementos for apresentada",
-      "entao": "o título da coluna permanece Elementos e a célula informa separadamente a quantidade de compartimentos e o total de portas declarado nos compartimentos"
+      "dado": "uma configuração com acabamentos, portas e compartimentos",
+      "quando": "as quantidades forem apresentadas no catálogo",
+      "entao": "Acabamentos mostra somente sua quantidade total, Portas mostra a quantidade total de portas e Compartimentos mostra a quantidade total de compartimentos"
+    },
+    {
+      "id": "AC17",
+      "dado": "uma configuração ativa com o objeto limites completo",
+      "quando": "o catálogo for carregado",
+      "entao": "o frontend apresenta os intervalos de altura, largura, profundidade e espessura na coluna Limites sem alterar os valores recebidos"
+    },
+    {
+      "id": "AC18",
+      "dado": "mais de uma configuração ativa",
+      "quando": "o usuário pesquisar ou alterar a ordenação do catálogo",
+      "entao": "a lista filtra os dados correspondentes ou ordena as configurações pelo rótulo de estilo sem modificar a fonte de dados"
     }
   ]
 }

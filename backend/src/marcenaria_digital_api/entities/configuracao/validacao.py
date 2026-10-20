@@ -2,13 +2,22 @@ import math
 from decimal import Decimal, InvalidOperation
 
 from marcenaria_digital_api.entities.configuracao import (
+    AcabamentoExterno,
+    CompartimentoConfiguracao,
     Configuracao,
-    DetalheConfiguracao,
+    ConfiguracaoArmario,
+    Limites,
+    PortaConfiguracao,
 )
 from marcenaria_digital_api.entities.enums import (
     AberturaPorta,
+    Corte,
+    DirecaoHorizontal,
+    DirecaoVertical,
+    Espessura,
+    EstiloAcabamento,
     EstiloMovel,
-    TipoConfiguracao,
+    Posicao,
     TipoMovel,
 )
 from marcenaria_digital_api.entities.exceptions import (
@@ -25,29 +34,81 @@ def validar_configuracao(configuracao: Configuracao) -> None:
         erros.append(ErroValidacao("id", "deve ser um inteiro positivo"))
     if not isinstance(configuracao.tipo, TipoMovel):
         erros.append(ErroValidacao("tipo", "tipo de móvel não permitido"))
-    if not isinstance(configuracao.estilo, EstiloMovel):
-        erros.append(ErroValidacao("estilo", "estilo de móvel não permitido"))
     _validar_limites_dimensionais(configuracao, erros)
     if type(configuracao.ativo) is not bool:
         erros.append(ErroValidacao("ativo", "deve ser verdadeiro ou falso"))
-    if not configuracao.detalhes:
-        erros.append(ErroValidacao("detalhes", "deve possuir ao menos um item"))
+    if not isinstance(configuracao.direcao_vertical, DirecaoVertical):
+        erros.append(
+            ErroValidacao("direcao_vertical", "direção vertical não permitida")
+        )
+    if not isinstance(configuracao.direcao_horizontal, DirecaoHorizontal):
+        erros.append(
+            ErroValidacao("direcao_horizontal", "direção horizontal não permitida")
+        )
+    if isinstance(configuracao, ConfiguracaoArmario):
+        _validar_configuracao_armario(configuracao, erros)
+    else:
+        erros.append(ErroValidacao("tipo", "configuração concreta não suportada"))
+
+    if erros:
+        raise ConfiguracaoInvalidaError(erros)
+
+
+def _validar_configuracao_armario(
+    configuracao: ConfiguracaoArmario, erros: list[ErroValidacao]
+) -> None:
+    """Valida os atributos específicos de uma configuração de armário."""
+    if not isinstance(configuracao.estilo_armario, EstiloMovel):
+        erros.append(
+            ErroValidacao("estilo_armario", "estilo de armário não permitido")
+        )
+    _validar_acabamentos(configuracao.acabamentos, erros)
+    if not configuracao.compartimentos:
+        erros.append(ErroValidacao("compartimentos", "deve possuir ao menos um item"))
+    _validar_elementos_espaciais(
+        configuracao.compartimentos,
+        "compartimentos",
+        CompartimentoConfiguracao,
+        erros,
+    )
+    _validar_elementos_espaciais(
+        configuracao.portas, "portas", PortaConfiguracao, erros
+    )
+
+def _validar_elementos_espaciais(
+    elementos: list[object],
+    raiz: str,
+    classe_esperada: type,
+    erros: list[ErroValidacao],
+) -> None:
+    """Valida identidade, ocupação e relações de elementos espaciais."""
+    if not isinstance(elementos, list):
+        erros.append(ErroValidacao(raiz, "deve ser uma lista"))
+        return
 
     ids: set[int] = set()
     duplicados: set[int] = set()
-    for indice, detalhe in enumerate(configuracao.detalhes):
-        prefixo = f"detalhes.{indice}"
-        if type(detalhe.id) is not int or detalhe.id <= 0:
+    elementos_validos: list[object] = []
+    for indice, elemento in enumerate(elementos):
+        prefixo = f"{raiz}.{indice}"
+        if not isinstance(elemento, classe_esperada):
+            erros.append(ErroValidacao(prefixo, "possui tipo inválido"))
+            continue
+        elementos_validos.append(elemento)
+        if type(elemento.id) is not int or elemento.id <= 0:
             erros.append(ErroValidacao(f"{prefixo}.id", "deve ser um inteiro positivo"))
-        if not isinstance(detalhe.tipo, TipoConfiguracao):
-            erros.append(ErroValidacao(f"{prefixo}.tipo", "tipo de configuração não permitido"))
-        _validar_portas_detalhe(detalhe, prefixo, erros)
-        if detalhe.id in ids:
-            duplicados.add(detalhe.id)
-        ids.add(detalhe.id)
+        if isinstance(elemento, PortaConfiguracao) and not isinstance(
+            elemento.abertura, AberturaPorta
+        ):
+            erros.append(
+                ErroValidacao(f"{prefixo}.abertura", "deve ser uma abertura válida")
+            )
+        if elemento.id in ids:
+            duplicados.add(elemento.id)
+        ids.add(elemento.id)
         for campo, valor in (
-            ("percentual_ocupacao_vertical", detalhe.percentual_ocupacao_vertical),
-            ("percentual_ocupacao_horizontal", detalhe.percentual_ocupacao_horizontal),
+            ("percentual_ocupacao_vertical", elemento.percentual_ocupacao_vertical),
+            ("percentual_ocupacao_horizontal", elemento.percentual_ocupacao_horizontal),
         ):
             if (
                 isinstance(valor, bool)
@@ -61,109 +122,124 @@ def validar_configuracao(configuracao: Configuracao) -> None:
                     )
                 )
 
-    for detalhe_id in sorted(duplicados):
+    for elemento_id in sorted(duplicados):
         erros.append(
-            ErroValidacao("detalhes.id", f"o id {detalhe_id} está duplicado na configuração")
+            ErroValidacao(
+                f"{raiz}.id",
+                f"o id {elemento_id} está duplicado na configuração",
+            )
         )
 
-    por_id = {detalhe.id: detalhe for detalhe in configuracao.detalhes}
+    por_id = {elemento.id: elemento for elemento in elementos_validos}
     referencias = (
         "em_cima_de_id",
         "embaixo_de_id",
         "a_direita_de_id",
         "a_esquerda_de_id",
     )
-    for indice, detalhe in enumerate(configuracao.detalhes):
-        prefixo = f"detalhes.{indice}"
+    for indice, elemento in enumerate(elementos_validos):
+        prefixo = f"{raiz}.{indice}"
         for campo in referencias:
-            referencia = getattr(detalhe, campo)
+            referencia = getattr(elemento, campo)
             if referencia is None:
                 continue
             if type(referencia) is not int or referencia <= 0:
                 erros.append(ErroValidacao(f"{prefixo}.{campo}", "deve ser um inteiro positivo"))
-            elif referencia == detalhe.id:
-                erros.append(ErroValidacao(f"{prefixo}.{campo}", "não pode referenciar o próprio detalhe"))
+            elif referencia == elemento.id:
+                erros.append(ErroValidacao(f"{prefixo}.{campo}", "não pode referenciar o próprio elemento"))
             elif referencia not in por_id:
                 erros.append(
                     ErroValidacao(
                         f"{prefixo}.{campo}",
-                        f"referencia o detalhe inexistente de id {referencia}",
+                        f"referencia o elemento inexistente de id {referencia}",
                     )
                 )
 
         if (
-            detalhe.em_cima_de_id is not None
-            and detalhe.em_cima_de_id == detalhe.embaixo_de_id
+            elemento.em_cima_de_id is not None
+            and elemento.em_cima_de_id == elemento.embaixo_de_id
         ):
             erros.append(
-                ErroValidacao(prefixo, "não pode estar acima e abaixo do mesmo detalhe")
+                ErroValidacao(prefixo, "não pode estar acima e abaixo do mesmo elemento")
             )
         if (
-            detalhe.a_direita_de_id is not None
-            and detalhe.a_direita_de_id == detalhe.a_esquerda_de_id
+            elemento.a_direita_de_id is not None
+            and elemento.a_direita_de_id == elemento.a_esquerda_de_id
         ):
             erros.append(
-                ErroValidacao(prefixo, "não pode estar à direita e à esquerda do mesmo detalhe")
+                ErroValidacao(prefixo, "não pode estar à direita e à esquerda do mesmo elemento")
             )
 
     if not duplicados:
-        erros.extend(_validar_relacoes_inversas(configuracao, por_id))
-        erros.extend(_validar_ciclos(configuracao, ids))
-
-    if erros:
-        raise ConfiguracaoInvalidaError(erros)
+        erros.extend(_validar_relacoes_inversas(elementos_validos, raiz, por_id))
+        erros.extend(_validar_ciclos(elementos_validos, raiz, ids))
 
 
-def _validar_portas_detalhe(
-    detalhe: DetalheConfiguracao, prefixo: str, erros: list[ErroValidacao]
+def _validar_acabamentos(
+    acabamentos: list[AcabamentoExterno], erros: list[ErroValidacao]
 ) -> None:
-    """Valida quantidade e abertura de portas conforme o tipo do detalhe."""
-    tipo = detalhe.tipo
-    quantidade = detalhe.quantidade_portas
-    abertura = detalhe.abertura_porta
+    """Valida os acabamentos associados à configuração."""
+    if not isinstance(acabamentos, list):
+        erros.append(ErroValidacao("acabamentos", "deve ser uma lista"))
+        return
 
-    if tipo == TipoConfiguracao.PORTA:
-        if quantidade is not None:
+    ids: set[int] = set()
+    duplicados: set[int] = set()
+    for indice, acabamento in enumerate(acabamentos):
+        prefixo = f"acabamentos.{indice}"
+        if not isinstance(acabamento, AcabamentoExterno):
+            erros.append(ErroValidacao(prefixo, "deve ser um acabamento externo"))
+            continue
+        if type(acabamento.id) is not int or acabamento.id <= 0:
+            erros.append(ErroValidacao(f"{prefixo}.id", "deve ser um inteiro positivo"))
+        if acabamento.id in ids:
+            duplicados.add(acabamento.id)
+        ids.add(acabamento.id)
+        if not isinstance(acabamento.posicao, Posicao):
             erros.append(
                 ErroValidacao(
-                    f"{prefixo}.quantidade_portas",
-                    "só deve ser informada para detalhes do tipo COMPARTIMENTO",
+                    f"{prefixo}.posicao", "posição de acabamento não permitida"
                 )
             )
-        if abertura is not None:
+        if not isinstance(acabamento.estilo_acabamento, EstiloAcabamento):
             erros.append(
                 ErroValidacao(
-                    f"{prefixo}.abertura_porta",
-                    "só deve ser informada para detalhes do tipo COMPARTIMENTO",
+                    f"{prefixo}.estilo_acabamento", "estilo de acabamento não permitido"
                 )
             )
-        return
-
-    if tipo != TipoConfiguracao.COMPARTIMENTO:
-        return
-
-    quantidade_valida = type(quantidade) is int and 0 <= quantidade <= 10
-    if not quantidade_valida:
-        erros.append(
-            ErroValidacao(
-                f"{prefixo}.quantidade_portas",
-                "deve ser um inteiro entre 0 e 10",
+        if (
+            isinstance(acabamento.extensao_cm, bool)
+            or not isinstance(acabamento.extensao_cm, (int, float))
+            or not math.isfinite(acabamento.extensao_cm)
+            or acabamento.extensao_cm <= 0
+        ):
+            erros.append(
+                ErroValidacao(
+                    f"{prefixo}.extensao_cm", "deve ser um número positivo"
+                )
             )
-        )
-        return
-
-    if quantidade == 0 and abertura is not None:
-        erros.append(
-            ErroValidacao(
-                f"{prefixo}.abertura_porta",
-                "não deve ser informada quando a quantidade de portas for zero",
+        if not isinstance(acabamento.espessura, Espessura):
+            erros.append(
+                ErroValidacao(f"{prefixo}.espessura", "espessura não permitida")
             )
-        )
-    elif quantidade > 0 and not isinstance(abertura, AberturaPorta):
+        if not isinstance(acabamento.corte_extremidade_1, Corte):
+            erros.append(
+                ErroValidacao(
+                    f"{prefixo}.corte_extremidade_1", "tipo de corte não permitido"
+                )
+            )
+        if not isinstance(acabamento.corte_extremidade_2, Corte):
+            erros.append(
+                ErroValidacao(
+                    f"{prefixo}.corte_extremidade_2", "tipo de corte não permitido"
+                )
+            )
+
+    for acabamento_id in sorted(duplicados):
         erros.append(
             ErroValidacao(
-                f"{prefixo}.abertura_porta",
-                "deve ser informada quando a quantidade de portas for maior que zero",
+                "acabamentos.id",
+                f"o id {acabamento_id} está duplicado na configuração",
             )
         )
 
@@ -172,19 +248,25 @@ def _validar_limites_dimensionais(
     configuracao: Configuracao, erros: list[ErroValidacao]
 ) -> None:
     """Valida valores e intervalos dimensionais permitidos pela configuração."""
+    if not isinstance(configuracao.limites, Limites):
+        erros.append(ErroValidacao("limites", "deve ser um conjunto de limites"))
+        return
+
+    limites = configuracao.limites
     dimensoes = (
-        ("altura", configuracao.altura_minima_cm, configuracao.altura_maxima_cm),
-        ("largura", configuracao.largura_minima_cm, configuracao.largura_maxima_cm),
+        ("altura", limites.altura_minima_cm, limites.altura_maxima_cm),
+        ("largura", limites.largura_minima_cm, limites.largura_maxima_cm),
         (
             "profundidade",
-            configuracao.profundidade_minima_cm,
-            configuracao.profundidade_maxima_cm,
+            limites.profundidade_minima_cm,
+            limites.profundidade_maxima_cm,
         ),
+        ("espessura", limites.espessura_minima_cm, limites.espessura_maxima_cm),
     )
     for dimensao, minimo, maximo in dimensoes:
         valores_validos = True
         for limite, valor in (("minima", minimo), ("maxima", maximo)):
-            campo = f"{dimensao}_{limite}_cm"
+            campo = f"limites.{dimensao}_{limite}_cm"
             try:
                 valido = (
                     isinstance(valor, Decimal)
@@ -201,15 +283,16 @@ def _validar_limites_dimensionais(
         if valores_validos and minimo > maximo:
             erros.append(
                 ErroValidacao(
-                    f"{dimensao}_minima_cm",
+                    f"limites.{dimensao}_minima_cm",
                     f"deve ser menor ou igual a {dimensao}_maxima_cm",
                 )
             )
 
 
 def _validar_relacoes_inversas(
-    configuracao: Configuracao, por_id: dict[int, object]
+    elementos: list[object], raiz: str, por_id: dict[int, object]
 ) -> list[ErroValidacao]:
+    """Valida a coerência das relações espaciais inversas."""
     erros: list[ErroValidacao] = []
     pares = (
         ("em_cima_de_id", "embaixo_de_id"),
@@ -217,41 +300,44 @@ def _validar_relacoes_inversas(
         ("a_direita_de_id", "a_esquerda_de_id"),
         ("a_esquerda_de_id", "a_direita_de_id"),
     )
-    for indice, detalhe in enumerate(configuracao.detalhes):
+    for indice, elemento in enumerate(elementos):
         for campo, campo_inverso in pares:
-            referencia = getattr(detalhe, campo)
+            referencia = getattr(elemento, campo)
             referenciado = por_id.get(referencia)
             if referenciado is None:
                 continue
             inversa = getattr(referenciado, campo_inverso)
-            if inversa is not None and inversa != detalhe.id:
+            if inversa is not None and inversa != elemento.id:
                 erros.append(
                     ErroValidacao(
-                        f"detalhes.{indice}.{campo}",
-                        f"a relação inversa {campo_inverso} do detalhe {referencia} é incoerente",
+                        f"{raiz}.{indice}.{campo}",
+                        f"a relação inversa {campo_inverso} do elemento {referencia} é incoerente",
                     )
                 )
     return erros
 
 
-def _validar_ciclos(configuracao: Configuracao, ids: set[int]) -> list[ErroValidacao]:
-    vertical = {detalhe_id: set() for detalhe_id in ids}
-    horizontal = {detalhe_id: set() for detalhe_id in ids}
-    for detalhe in configuracao.detalhes:
-        if detalhe.em_cima_de_id in ids:
-            vertical[detalhe.id].add(detalhe.em_cima_de_id)
-        if detalhe.embaixo_de_id in ids:
-            vertical[detalhe.embaixo_de_id].add(detalhe.id)
-        if detalhe.a_direita_de_id in ids:
-            horizontal[detalhe.a_direita_de_id].add(detalhe.id)
-        if detalhe.a_esquerda_de_id in ids:
-            horizontal[detalhe.id].add(detalhe.a_esquerda_de_id)
+def _validar_ciclos(
+    elementos: list[object], raiz: str, ids: set[int]
+) -> list[ErroValidacao]:
+    """Valida a ausência de ciclos nas relações espaciais."""
+    vertical = {elemento_id: set() for elemento_id in ids}
+    horizontal = {elemento_id: set() for elemento_id in ids}
+    for elemento in elementos:
+        if elemento.em_cima_de_id in ids:
+            vertical[elemento.id].add(elemento.em_cima_de_id)
+        if elemento.embaixo_de_id in ids:
+            vertical[elemento.embaixo_de_id].add(elemento.id)
+        if elemento.a_direita_de_id in ids:
+            horizontal[elemento.a_direita_de_id].add(elemento.id)
+        if elemento.a_esquerda_de_id in ids:
+            horizontal[elemento.id].add(elemento.a_esquerda_de_id)
 
     erros: list[ErroValidacao] = []
     if _possui_ciclo(vertical):
-        erros.append(ErroValidacao("detalhes", "as relações do eixo vertical formam um ciclo"))
+        erros.append(ErroValidacao(raiz, "as relações do eixo vertical formam um ciclo"))
     if _possui_ciclo(horizontal):
-        erros.append(ErroValidacao("detalhes", "as relações do eixo horizontal formam um ciclo"))
+        erros.append(ErroValidacao(raiz, "as relações do eixo horizontal formam um ciclo"))
     return erros
 
 

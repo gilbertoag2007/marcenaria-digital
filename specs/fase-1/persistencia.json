@@ -1,6 +1,6 @@
 {
   "spec": "fase-1-persistencia",
-  "versao": 3,
+  "versao": 10,
   "fase": 1,
   "arquivo": "backend/src/marcenaria_digital_api/repositories/json/configuracoes.json",
   "repository": {
@@ -9,6 +9,11 @@
   },
   "formato": {
     "encoding": "UTF-8",
+    "mapeamento_entidades": {
+      "tipo": "Configuracao.tipo (derivado pela entidade concreta)",
+      "estilo": "ConfiguracaoArmario.estilo_armario",
+      "acabamentos[].tipo_acabamento": "AcabamentoExterno.posicao"
+    },
     "estrutura": {
       "versao": 1,
       "configuracoes": "list[Configuracao]"
@@ -30,8 +35,11 @@
     "A persistência deve ser acessada pelos serviços por meio do contrato ConfiguracaoRepository.",
     "As rotas não podem acessar o repositório diretamente.",
     "Validar a estrutura completa do arquivo antes de utilizar seus dados.",
+    "Persistir os oito campos dimensionais dentro do objeto limites de cada configuração.",
     "Serializar e desserializar sem perda de dados.",
-    "Preservar quantidade_portas e abertura_porta quando aplicáveis ao detalhe COMPARTIMENTO e mantê-los nulos para detalhes PORTA.",
+    "Persistir compartimentos em compartimentos e portas em portas, preservando a abertura de cada porta.",
+    "Persistir acabamentos em acabamentos, mapeando tipo_acabamento para AcabamentoExterno.posicao ao converter para entidade.",
+    "Permitir coleções acabamentos e portas vazias; exigir ao menos um compartimento por configuração.",
     "Gravar primeiro em arquivo temporário no mesmo diretório e substituir o arquivo original atomicamente.",
     "Em caso de falha, preservar o conteúdo original como JSON válido.",
     "Impedir gravações concorrentes que causem perda de atualização.",

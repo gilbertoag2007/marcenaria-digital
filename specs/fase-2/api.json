@@ -1,9 +1,9 @@
 {
   "spec": "fase-2-api",
-  "versao": 3,
+  "versao": 9,
   "fase": 2,
   "base_path": "/api/v1",
-  "schema_configuracao": "Mesmo formato de ConfiguracaoOutput definido na Fase 1, incluindo quantidade_portas e abertura_porta anuláveis conforme o tipo e a quantidade de portas do detalhe.",
+  "schema_configuracao": "Mesmo formato de ConfiguracaoOutput definido na Fase 1, incluindo o objeto limites e as coleções compartimentos e portas. O campo tipo é derivado pela entidade concreta; estilo e acabamentos[].tipo_acabamento são adaptados para ConfiguracaoArmario.estilo_armario e AcabamentoExterno.posicao.",
   "endpoints": [
     {
       "metodo": "GET",

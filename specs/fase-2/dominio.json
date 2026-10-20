@@ -1,17 +1,17 @@
 {
   "spec": "fase-2-dominio",
-  "versao": 4,
+  "versao": 10,
   "fase": 2,
   "modelo": {
     "novas_entidades_persistidas": [],
     "entidades_reutilizadas": [
       "Configuracao",
-      "DetalheConfiguracao"
+      "CompartimentoConfiguracao",
+      "PortaConfiguracao"
     ],
     "enums_reutilizados": [
       "TipoMovel",
       "EstiloMovel",
-      "TipoConfiguracao",
       "AberturaPorta"
     ],
     "observacao": "Os campos e invariantes das entidades permanecem definidos em specs/fase-1/dominio.json."
@@ -22,14 +22,14 @@
       "itens": "list[Configuracao] com ativo igual a true"
     },
     "PreviaLayoutInterno2D": {
-      "descricao": "Representação visual normalizada dos compartimentos de uma configuração.",
-      "origem": "detalhes COMPARTIMENTO, seus percentuais de ocupação e relações espaciais",
+      "descricao": "Representação visual normalizada dos compartimentos e dos acabamentos posicionados nas bordas de uma configuração.",
+      "origem": "compartimentos, acabamentos, percentuais de ocupação e relações espaciais",
       "renderizacao": "SVG",
       "persistida": false
     },
     "PreviaLayoutExterno2D": {
       "descricao": "Representação visual normalizada das portas de uma configuração.",
-      "origem": "detalhes PORTA e quantidade e abertura de portas dos detalhes COMPARTIMENTO",
+      "origem": "portas, suas aberturas, percentuais de ocupação e relações espaciais",
       "renderizacao": "SVG",
       "persistida": false
     },
@@ -42,14 +42,15 @@
   "regras": [
     "Configurações inativas não podem ser exibidas nem selecionadas no catálogo.",
     "Cada opção do catálogo corresponde a uma configuração ativa e mantém seu id original.",
-    "A prévia de Layout Interno deve representar somente os compartimentos e suas posições relativas.",
+    "A prévia de Layout Interno deve representar os compartimentos e suas posições relativas, além dos acabamentos em suas respectivas bordas.",
     "A prévia de Layout Externo deve representar as portas e suas posições relativas.",
     "Uma porta externa sobreposta não pode ocultar as divisões entre compartimentos no Layout Interno.",
-    "Portas verticais devem dividir horizontalmente a largura disponível; portas horizontais devem dividir verticalmente a altura disponível.",
-    "A coluna Elementos deve contar os detalhes COMPARTIMENTO e o total de portas declarado nesses detalhes.",
-    "O catálogo deve receber quantidade e abertura para detalhes COMPARTIMENTO e valores nulos para detalhes PORTA pelo contrato da API.",
+    "Cada item da coleção portas deve produzir exatamente um retângulo na prévia externa.",
+    "A lista deve apresentar separadamente as quantidades totais de acabamentos, portas e compartimentos.",
+    "A coluna de intervalos dimensionais usa o cabeçalho Limites e mantém os valores recebidos no objeto limites.",
+    "O catálogo deve receber compartimentos e portas em coleções distintas pelo contrato da API.",
     "Os percentuais de ocupação devem ser usados em escala normalizada no espaço visual disponível das duas prévias.",
-    "Os limites mínimos e máximos podem ser apresentados como informações do estilo, mas não dimensionam a prévia.",
+    "Os limites mínimos e máximos de altura, largura, profundidade e espessura são recebidos no objeto limites e podem ser apresentados como informações do estilo, mas não dimensionam a prévia.",
     "O FastAPI é a fonte dos dados usados para construir as prévias; o frontend não redefine as regras do domínio.",
     "As prévias não criam entidades de móvel, peças, materiais ou posições tridimensionais.",
     "A seleção permanece somente no estado transitório do frontend nesta fase."

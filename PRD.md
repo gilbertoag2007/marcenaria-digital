@@ -63,8 +63,8 @@ Cada armário será definido principalmente pelas seguintes informações:
 
 Por se tratar de um armário, as seguintes informações também deverão ser fornecidas:
 
-* possui acabamento frontal superior? (Sim ou Não);
-* possui acabamento frontal inferior? (Sim ou Não);
+* limites mínimos e máximos permitidos de altura, largura, profundidade e espessura;
+* acabamentos externos opcionais, definidos por posição, estilo, extensão, espessura e cortes das extremidades;
 * quantidade de compartimentos internos;
 * conteúdo de cada compartimento e suas respectivas quantidades (gavetas, cabideiros e áreas livres);
 * configuração das gavetas;
@@ -97,7 +97,7 @@ O fluxo esperado para a visão completa do produto é apresentado a seguir. Suas
 
 → **Definição do nome, do tipo e das dimensões externas do móvel**
 
-→ **Configuração do estilo e acabamentos frontais**
+→ **Configuração do estilo e dos acabamentos por posição**
 
 → **Configuração dos compartimentos, conteúdos e portas**
 
@@ -144,9 +144,11 @@ disponíveis. As fases posteriores deverão manter as funcionalidades já entreg
 
 #### RF01 — Criar configurações de armário
 
-O backend deverá permitir definir configurações reutilizáveis para os estilos de
-armário, incluindo limites mínimos e máximos de altura, largura e profundidade,
-compartimentos, quantidade e abertura das portas, ocupações e relações espaciais.
+O backend deverá permitir definir configurações reutilizáveis de armário com
+tipo `ARMARIO`, estilo, direções de organização, limites mínimos e máximos de
+altura, largura, profundidade e espessura agrupados no objeto de valor
+`Limites`, acabamentos externos opcionais, compartimentos e portas com abertura,
+percentuais de ocupação e relações espaciais.
 
 #### RF02 — Validar configurações
 
@@ -161,20 +163,26 @@ dentro do projeto. Esse será o único mecanismo de persistência até a Fase 7.
 
 ### Fase 2 — Catálogo visual de estilos (backend e frontend)
 
-#### RF04 — Recuperar estilos de armário
+#### RF04 — Recuperar configurações e estilos ativos
 
-O backend deverá listar todos os estilos ativos a partir das configurações
-gravadas no JSON e disponibilizar os respectivos detalhes ao frontend.
+O backend deverá listar as configurações ativas completas para o catálogo,
+consultar uma configuração ativa pelo identificador e listar sem duplicidade
+os estilos que possuem ao menos uma configuração ativa. As consultas devem
+preservar a ordem do arquivo JSON e não alterar os dados persistidos.
 
 #### RF05 — Apresentar estilos em 2D
 
 O frontend deverá apresentar em 2D todos os estilos recuperados, permitindo que
 o usuário visualize suas divisões e selecione um deles. Cada configuração deverá
 possuir duas prévias renderizadas com SVG: **Layout Interno**, com os
-compartimentos e suas divisões, e **Layout Externo**, com os retângulos que
-representam as portas. A coluna **Elementos** deverá informar separadamente as
-quantidades de compartimentos e de portas. Essas representações são prévias do
-estilo, e não a representação dimensional de um móvel calculado.
+compartimentos, suas divisões e os acabamentos posicionados nas bordas, e
+**Layout Externo**, com os retângulos que representam as portas. A lista deverá
+apresentar tipo de móvel, estilo, limites dimensionais, quantidades de
+acabamentos, portas e compartimentos, status e ação de seleção. O cabeçalho dos
+limites é **Limites**; seus valores são mantidos nos intervalos de altura,
+largura, profundidade e espessura. A coluna Acabamentos apresenta somente a
+quantidade total, sem discriminar posição ou estilo. Essas representações são
+prévias do estilo, e não a representação dimensional de um móvel calculado.
 
 ### Fase 3 — Configuração e cálculo do móvel (backend e frontend)
 
@@ -331,9 +339,15 @@ As dimensões do móvel e das peças deverão ser calculadas e armazenadas em ce
 
 As espessuras do fundo do armário e fundo das gavetas deverão ser informadas em milímetros (mm).
 
-### RN07 — Acabamentos frontais
+### RN07 — Acabamentos externos configurados
 
-A existência de acabamento frontal superior e de acabamento frontal inferior deverá ser definida individualmente pelas opções **Sim** ou **Não**.
+Cada configuração de armário pode conter zero ou mais `AcabamentoExterno`.
+Cada acabamento possui identificador, posição (`SUPERIOR`, `INFERIOR`,
+`DIREITA` ou `ESQUERDA`), estilo (`INTERNO` ou `EXTERNO`), extensão em
+centímetros, espessura (`6 mm`, `15 mm` ou `18 mm`) e cortes das extremidades
+(`reto` ou `meia esquadria`). No contrato HTTP e no JSON, a posição é informada
+como `tipo_acabamento`; na entidade Python, o campo é `posicao`. A omissão da
+coleção `acabamentos` equivale a uma lista vazia.
 
 ### RN08 — Estrutura interna do armário
 
@@ -349,14 +363,14 @@ Gavetas, cabideiros, divisões verticais e áreas livres deverão respeitar os e
 
 ### RN11 — Configuração das portas
 
-As portas deverão ser calculadas de acordo com a quantidade, as dimensões e a
-disposição definidas no projeto. Cada detalhe de configuração deve informar uma
-quantidade inteira de portas entre 0 e 10, inclusive, somente quando seu tipo
-for `COMPARTIMENTO`. Quando a quantidade for maior que zero, a abertura deve ser
+As portas deverão ser calculadas de acordo com as dimensões e a disposição
+definidas no projeto. Cada porta deve ser representada por uma
+`PortaConfiguracao`, de modo que a quantidade seja derivada da contagem da
+coleção `portas`. A abertura deve ser
 `ABERTURA VERTICAL PARA DIREITA`, `ABERTURA VERTICAL PARA ESQUERDA`,
-`ABERTURA HORIZONTAL PARA CIMA` ou `ABERTURA HORIZONTAL PARA BAIXO`; quando for
-zero, a abertura não deve ser informada. Detalhes do tipo `PORTA` não devem
-informar esses atributos.
+`ABERTURA HORIZONTAL PARA CIMA`, `ABERTURA HORIZONTAL PARA BAIXO` ou
+`PORTA CORRER`.
+`CompartimentoConfiguracao` representa exclusivamente um compartimento.
 
 ### RN12 — Validação anterior ao cálculo
 
@@ -452,57 +466,112 @@ atributos em `snake_case`, membros de enums em `UPPER_SNAKE_CASE`, coleções co
 
 ### Configuracao
 
-Representa um modelo reutilizável de organização de um móvel.
+Classe abstrata que define os dados comuns a um modelo reutilizável de
+organização de móvel. O tipo é derivado da configuração concreta.
 
 ```text
 id: int
-tipo: TipoMovel
-estilo: EstiloMovel
+limites: Limites
+ativo: bool
+direcao_vertical: DirecaoVertical
+direcao_horizontal: DirecaoHorizontal
+tipo: TipoMovel (propriedade derivada)
+```
+
+### ConfiguracaoArmario
+
+Representa a configuração concreta de um armário.
+
+```text
+estilo_armario: EstiloMovel
+compartimentos: list[CompartimentoConfiguracao]
+acabamentos: list[AcabamentoExterno]
+portas: list[PortaConfiguracao]
+```
+
+### Limites
+
+Agrupa as faixas dimensionais permitidas para os móveis de uma configuração.
+
+```text
 altura_minima_cm: Decimal
 altura_maxima_cm: Decimal
 largura_minima_cm: Decimal
 largura_maxima_cm: Decimal
 profundidade_minima_cm: Decimal
 profundidade_maxima_cm: Decimal
-ativo: bool
-detalhes: list[DetalheConfiguracao]
+espessura_minima_cm: Decimal
+espessura_maxima_cm: Decimal
 ```
 
-Os limites dimensionais são obrigatórios, positivos, expressos em centímetros e
-o valor mínimo de cada dimensão não pode superar o respectivo valor máximo.
+Os limites são obrigatórios, positivos, expressos em centímetros e o valor
+mínimo de cada dimensão não pode superar o respectivo valor máximo.
 
-### DetalheConfiguracao
+### CompartimentoConfiguracao
 
-Representa o posicionamento espacial e organização dos compartimentos e portas dentro do móvel.
+Representa o posicionamento espacial e a organização de um compartimento dentro do móvel.
 
 ```text
 id: int
-tipo: TipoConfiguracao
 percentual_ocupacao_vertical: float
 percentual_ocupacao_horizontal: float
-quantidade_portas: int | None
-abertura_porta: AberturaPorta | None
 em_cima_de_id: int | None
 embaixo_de_id: int | None
 a_direita_de_id: int | None
 a_esquerda_de_id: int | None
 ```
 
-Uma `Configuracao` possui um ou mais detalhes, e cada
-`DetalheConfiguracao` pertence à configuração em que está aninhado. As quatro
-referências espaciais são IDs opcionais de outros detalhes da mesma
-configuração. Os IDs dos detalhes devem ser positivos e únicos dentro da
-configuração, e os percentuais de ocupação devem ser maiores que zero e menores
-ou iguais a 100. Em detalhes do tipo `COMPARTIMENTO`, a quantidade de portas é
-obrigatória e deve ser um inteiro entre 0 e 10, inclusive. A abertura é
-obrigatória quando essa quantidade for maior que zero e não deve ser informada
-quando ela for zero. Os dois atributos não se aplicam a detalhes do tipo
-`PORTA` e devem permanecer nulos nesse caso.
+Uma `Configuracao` possui um ou mais compartimentos, e cada
+`CompartimentoConfiguracao` pertence à configuração em que está aninhado. As quatro
+referências espaciais são IDs opcionais de outros compartimentos da mesma
+configuração. Os IDs dos compartimentos devem ser positivos e únicos dentro da
+coleção, e os percentuais de ocupação devem ser maiores que zero e menores
+ou iguais a 100.
 
-Uma referência espacial deve apontar para um detalhe existente, não pode apontar
-para o próprio detalhe nem produzir contradições ou ciclos nos eixos vertical e
+Uma referência espacial deve apontar para um compartimento existente, não pode apontar
+para o próprio compartimento nem produzir contradições ou ciclos nos eixos vertical e
 horizontal. Quando os dois lados de uma relação inversa forem informados, eles
 devem ser coerentes.
+
+### AcabamentoExterno
+
+Representa um acabamento externo configurado para o armário.
+
+```text
+id: int
+posicao: Posicao
+estilo_acabamento: EstiloAcabamento
+extensao_cm: float
+espessura: Espessura
+corte_extremidade_1: Corte
+corte_extremidade_2: Corte
+```
+
+O campo `posicao` define o lado do móvel ao qual o acabamento se aplica. Na
+API e no JSON versionado, esse mesmo valor é transportado pelo campo
+`tipo_acabamento` para preservar o contrato existente. O identificador deve ser
+positivo e único na coleção `acabamentos`; a lista pode estar vazia.
+
+### PortaConfiguracao
+
+Representa uma porta da configuração, separada dos compartimentos.
+
+```text
+id: int
+percentual_ocupacao_vertical: float
+percentual_ocupacao_horizontal: float
+abertura: AberturaPorta
+em_cima_de_id: int | None
+embaixo_de_id: int | None
+a_direita_de_id: int | None
+a_esquerda_de_id: int | None
+```
+
+Uma `Configuracao` possui uma lista `portas`. Cada item representa exatamente
+uma porta, deve informar uma abertura válida e segue as mesmas regras de
+identidade, ocupação percentual e relações espaciais dos compartimentos.
+Os IDs das portas são positivos e únicos na coleção `portas`; as referências
+espaciais de portas apontam para itens dessa mesma coleção.
 
 ## 8.2 Objetos de valor
 
@@ -621,12 +690,9 @@ quantidade: int
 
 ## 8.6 Enumerações
 
-### TipoConfiguracao
-
-```text
-COMPARTIMENTO
-PORTA
-```
+Os enums abaixo identificam o domínio implementado nas Fases 1 e 2. Os campos
+`estilo` e `tipo_acabamento` da API/JSON são adaptados, respectivamente, para
+`ConfiguracaoArmario.estilo_armario` e `AcabamentoExterno.posicao`.
 
 ### AberturaPorta
 
@@ -635,6 +701,7 @@ ABERTURA VERTICAL PARA DIREITA
 ABERTURA VERTICAL PARA ESQUERDA
 ABERTURA HORIZONTAL PARA CIMA
 ABERTURA HORIZONTAL PARA BAIXO
+PORTA CORRER
 ```
 
 ### TipoMovel
@@ -650,6 +717,54 @@ MULTIUSO
 GUARDA_ROUPA
 ARMARIO_AEREO
 ```
+
+### DirecaoVertical
+
+```text
+cima_baixo
+baixo_cima
+```
+
+### DirecaoHorizontal
+
+```text
+direita_esquerda
+esquerda_direita
+```
+
+### Posicao
+
+```text
+SUPERIOR
+INFERIOR
+DIREITA
+ESQUERDA
+```
+
+### EstiloAcabamento
+
+```text
+INTERNO
+EXTERNO
+```
+
+### Espessura
+
+```text
+6 mm
+15 mm
+18 mm
+```
+
+### Corte
+
+```text
+reto
+meia esquadria
+```
+
+As enumerações a seguir descrevem conceitos previstos para fases posteriores e
+não fazem parte do catálogo de enums implementado pelo backend nas Fases 1 e 2.
 
 ### Finalidade
 
@@ -705,8 +820,8 @@ PARAFUSO
 ## 8.7 Relações conceituais principais
 
 ```text
-Configuracao       1 ─── 1..* DetalheConfiguracao
-DetalheConfiguracao 1 ─── 1    Configuracao (associação obrigatória)
+Configuracao              1 ─── 1..* CompartimentoConfiguracao
+CompartimentoConfiguracao 1 ─── 1    Configuracao (associação obrigatória)
 
 Movel              <|── Armario
 Componente         <|── Compartimento
@@ -776,7 +891,7 @@ marcenaria-digital/
 │   │       ├── entities/
 │   │       │   ├── configuracao/
 │   │       │   │   ├── configuracao.py
-│   │       │   │   ├── detalhes_configuracao.py
+│   │       │   │   ├── compartimento_configuracao.py
 │   │       │   │   └── validacao.py
 │   │       │   ├── enums/
 │   │       │       ├── estilo_movel.py
@@ -985,24 +1100,33 @@ GET    /api/v1/moveis/{id}/manual-montagem.pdf       [Fase 11]
 ## 10.1 Contrato implementado na Fase 1
 
 O único endpoint público da Fase 1 é `POST /api/v1/configuracoes`. Ele recebe
-uma configuração com os seguintes campos obrigatórios:
+uma configuração com os seguintes campos:
 
 ```text
 id: int positivo
 tipo: ARMARIO
 estilo: MULTIUSO | GUARDA_ROUPA | ARMARIO_AEREO
-altura_minima_cm: Decimal positivo
-altura_maxima_cm: Decimal positivo
-largura_minima_cm: Decimal positivo
-largura_maxima_cm: Decimal positivo
-profundidade_minima_cm: Decimal positivo
-profundidade_maxima_cm: Decimal positivo
+limites: objeto obrigatório com limites positivos de altura, largura, profundidade e espessura em cm
 ativo: bool
-detalhes: list[DetalheConfiguracao] com ao menos um item
+direcao_vertical: cima_baixo | baixo_cima
+direcao_horizontal: direita_esquerda | esquerda_direita
+acabamentos: lista opcional (padrão vazio) de AcabamentoExterno
+compartimentos: lista obrigatória com ao menos um CompartimentoConfiguracao
+portas: lista opcional (padrão vazio) de PortaConfiguracao
 ```
 
-Cada detalhe utiliza o formato descrito na Seção 8.1. Campos desconhecidos são
-rejeitados. Os limites mínimos não podem superar os respectivos limites máximos.
+Os acabamentos usam `tipo_acabamento` (`SUPERIOR`, `INFERIOR`, `DIREITA`,
+`ESQUERDA`), `estilo_acabamento` (`INTERNO`, `EXTERNO`), `extensao_cm` positiva,
+`espessura` (`6 mm`, `15 mm`, `18 mm`) e dois cortes (`reto` ou
+`meia esquadria`). Cada compartimento e porta possui id positivo, ocupações
+vertical e horizontal maiores que zero e até 100 e referências espaciais
+opcionais; cada porta também exige `abertura` (`ABERTURA VERTICAL PARA DIREITA`,
+`ABERTURA VERTICAL PARA ESQUERDA`, `ABERTURA HORIZONTAL PARA CIMA`,
+`ABERTURA HORIZONTAL PARA BAIXO` ou `PORTA CORRER`). As referências espaciais
+de cada coleção apontam para itens existentes da mesma coleção. Cada limite e
+elemento usa o formato descrito na Seção 8.1. Campos desconhecidos são
+rejeitados. Os limites mínimos não podem superar os respectivos limites
+máximos.
 Quando a criação for concluída, a API responde `201` com a configuração
 persistida. As respostas de erro são:
 
@@ -1016,6 +1140,12 @@ O contrato é publicado automaticamente pelo FastAPI em OpenAPI/Swagger. A
 operação `obter_por_id` existe no contrato interno do repositório para validar a
 recuperação sem perda de dados, mas não é exposta como endpoint público na Fase
 1.
+
+No domínio Python, `Configuracao` é abstrata e `ConfiguracaoArmario` é a
+implementação concreta. A propriedade `tipo` da entidade é derivada como
+`TipoMovel.ARMARIO`; os contratos HTTP e JSON mantêm os campos públicos
+`tipo`, `estilo` e `acabamentos[].tipo_acabamento`. Os dois últimos são
+convertidos, respectivamente, para `estilo_armario` e `posicao` nas entidades.
 
 As operações das Fases 3, 5, 6 e 7 deverão receber os dados necessários no
 corpo da requisição e devolver o resultado sem pressupor que exista um móvel
@@ -1084,12 +1214,12 @@ tipar os contratos utilizados pelo frontend; e Vite será utilizado para o
 ambiente de desenvolvimento e para a geração do pacote de produção.
 
 As prévias de estilos da Fase 2 e a representação dimensional 2D da Fase 5
-deverão utilizar **SVG**. Na Fase 2, o Layout Interno deverá mostrar somente os
-compartimentos, com a mesma paleta visual entre configurações e sem sobreposição
-das portas externas. O Layout Externo deverá representar as portas: quantidades
-maiores que uma serão divididas em folhas iguais conforme a orientação vertical
-ou horizontal da abertura, e detalhes do tipo `PORTA` serão representados como
-uma porta. A visualização 3D da Fase 6 deverá utilizar **Three.js**, encapsulada
+deverão utilizar **SVG**. Na Fase 2, o Layout Interno deverá mostrar os
+compartimentos e todos os acabamentos configurados em suas posições de borda,
+com a mesma paleta visual entre configurações e sem sobreposição das portas
+externas. O Layout Externo deverá representar cada item da coleção
+`portas`, respeitando sua ocupação e suas relações espaciais. A
+visualização 3D da Fase 6 deverá utilizar **Three.js**, encapsulada
 em componentes Vue próprios.
 
 O **FastAPI será a fonte de verdade das dimensões, peças e coordenadas**. O
@@ -1299,11 +1429,15 @@ interna e externa de cada estilo de armário.
 * o frontend Vue 3, escrito em TypeScript e servido em desenvolvimento pelo
   Vite, apresenta cada estilo em prévias SVG de Layout Interno e Layout Externo
   e permite selecioná-lo;
-* o Layout Interno apresenta os compartimentos e preserva suas divisões, mesmo
-  quando houver um detalhe de porta sobreposto;
-* o Layout Externo apresenta as portas e divide múltiplas folhas conforme a
-  orientação da abertura;
-* a coluna Elementos apresenta as quantidades de compartimentos e portas;
+* o Layout Interno apresenta os compartimentos e os acabamentos configurados nas
+  bordas, preservando as divisões mesmo quando houver uma porta sobreposta;
+* o Layout Externo apresenta um retângulo para cada item da coleção `portas`,
+  conforme seus percentuais e relações espaciais;
+* a tabela apresenta as colunas Layout Interno, Layout Externo, Tipo de móvel,
+  Estilo, Limites, Acabamentos, Portas, Compartimentos, Status e Ações;
+* a coluna Limites apresenta os intervalos de altura, largura, profundidade e
+  espessura; Acabamentos, Portas e Compartimentos apresentam suas respectivas
+  quantidades totais, sem detalhar posição ou estilo dos acabamentos;
 * estados de carregamento, lista vazia e erro são tratados;
 
 

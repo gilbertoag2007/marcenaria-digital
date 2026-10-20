@@ -1,6 +1,6 @@
 {
   "spec": "fase-1-api",
-  "versao": 5,
+  "versao": 12,
   "fase": 1,
   "base_path": "/api/v1",
   "endpoints": [
@@ -10,25 +10,67 @@
       "objetivo": "Validar e persistir uma nova configuração.",
       "request": {
         "content_type": "application/json",
+        "regras_campos": {
+          "obrigatorios": [
+            "id",
+            "tipo",
+            "estilo",
+            "limites",
+            "ativo",
+            "direcao_vertical",
+            "direcao_horizontal",
+            "compartimentos"
+          ],
+          "acabamentos": "Opcional; omitido ou lista vazia equivale a nenhum acabamento.",
+          "compartimentos": "Obrigatório e deve conter ao menos um item.",
+          "portas": "Opcional; omitido ou lista vazia equivale a nenhuma porta.",
+          "campos_desconhecidos": "Rejeitados em todos os objetos do request."
+        },
         "body": {
           "id": "int positivo",
           "tipo": "ARMARIO",
           "estilo": "MULTIUSO | GUARDA_ROUPA | ARMARIO_AEREO",
-          "altura_minima_cm": "decimal positivo menor ou igual a altura_maxima_cm",
-          "altura_maxima_cm": "decimal positivo maior ou igual a altura_minima_cm",
-          "largura_minima_cm": "decimal positivo menor ou igual a largura_maxima_cm",
-          "largura_maxima_cm": "decimal positivo maior ou igual a largura_minima_cm",
-          "profundidade_minima_cm": "decimal positivo menor ou igual a profundidade_maxima_cm",
-          "profundidade_maxima_cm": "decimal positivo maior ou igual a profundidade_minima_cm",
+          "limites": {
+            "altura_minima_cm": "decimal positivo menor ou igual a altura_maxima_cm",
+            "altura_maxima_cm": "decimal positivo maior ou igual a altura_minima_cm",
+            "largura_minima_cm": "decimal positivo menor ou igual a largura_maxima_cm",
+            "largura_maxima_cm": "decimal positivo maior ou igual a largura_minima_cm",
+            "profundidade_minima_cm": "decimal positivo menor ou igual a profundidade_maxima_cm",
+            "profundidade_maxima_cm": "decimal positivo maior ou igual a profundidade_minima_cm",
+            "espessura_minima_cm": "decimal positivo menor ou igual a espessura_maxima_cm",
+            "espessura_maxima_cm": "decimal positivo maior ou igual a espessura_minima_cm"
+          },
           "ativo": "bool",
-          "detalhes": [
+          "direcao_vertical": "cima_baixo | baixo_cima",
+          "direcao_horizontal": "direita_esquerda | esquerda_direita",
+          "acabamentos": [
+            {
+              "id": "int positivo e único na configuração",
+              "tipo_acabamento": "SUPERIOR | INFERIOR | DIREITA | ESQUERDA",
+              "estilo_acabamento": "INTERNO | EXTERNO",
+              "extensao_cm": "float positivo",
+              "espessura": "6 mm | 15 mm | 18 mm",
+              "corte_extremidade_1": "reto | meia esquadria",
+              "corte_extremidade_2": "reto | meia esquadria"
+            }
+          ],
+          "compartimentos": [
             {
               "id": "int positivo",
-              "tipo": "COMPARTIMENTO | PORTA",
               "percentual_ocupacao_vertical": "float entre 0 exclusivo e 100 inclusivo",
               "percentual_ocupacao_horizontal": "float entre 0 exclusivo e 100 inclusivo",
-              "quantidade_portas": "int entre 0 e 10 para COMPARTIMENTO | null para PORTA",
-              "abertura_porta": "ABERTURA VERTICAL PARA DIREITA | ABERTURA VERTICAL PARA ESQUERDA | ABERTURA HORIZONTAL PARA CIMA | ABERTURA HORIZONTAL PARA BAIXO quando quantidade_portas for positiva | null quando a quantidade for zero ou o tipo for PORTA",
+              "em_cima_de_id": "int positivo ou null",
+              "embaixo_de_id": "int positivo ou null",
+              "a_direita_de_id": "int positivo ou null",
+              "a_esquerda_de_id": "int positivo ou null"
+            }
+          ],
+          "portas": [
+            {
+              "id": "int positivo",
+              "percentual_ocupacao_vertical": "float entre 0 exclusivo e 100 inclusivo",
+              "percentual_ocupacao_horizontal": "float entre 0 exclusivo e 100 inclusivo",
+              "abertura": "ABERTURA VERTICAL PARA DIREITA | ABERTURA VERTICAL PARA ESQUERDA | ABERTURA HORIZONTAL PARA CIMA | ABERTURA HORIZONTAL PARA BAIXO | PORTA CORRER",
               "em_cima_de_id": "int positivo ou null",
               "embaixo_de_id": "int positivo ou null",
               "a_direita_de_id": "int positivo ou null",
@@ -37,10 +79,15 @@
           ]
         }
       },
+      "mapeamento_entidades": {
+        "tipo": "Configuracao.tipo (validado como ARMARIO e derivado pela entidade concreta)",
+        "estilo": "ConfiguracaoArmario.estilo_armario",
+        "acabamentos[].tipo_acabamento": "AcabamentoExterno.posicao"
+      },
       "responses": {
         "201": {
           "descricao": "Configuração criada.",
-          "body": "A configuração persistida no mesmo formato do request."
+          "body": "ConfiguracaoOutput no formato público do request, com coleções vazias quando acabamentos ou portas forem omitidas na entrada."
         },
         "409": {
           "descricao": "Já existe uma configuração com o id informado.",

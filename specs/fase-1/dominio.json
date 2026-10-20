@@ -1,71 +1,138 @@
 {
   "spec": "fase-1-dominio",
-  "versao": 4,
+  "versao": 12,
   "fase": 1,
   "entidades": {
     "Configuracao": {
       "campos": {
         "id": "int positivo",
-        "tipo": "TipoMovel",
-        "estilo": "EstiloMovel",
+        "tipo": "TipoMovel derivado da configuração concreta",
+        "limites": "Limites",
+        "ativo": "bool",
+        "direcao_vertical": "DirecaoVertical",
+        "direcao_horizontal": "DirecaoHorizontal"
+      }
+    },
+    "ConfiguracaoArmario": {
+      "campos": {
+        "estilo_armario": "EstiloMovel",
+        "acabamentos": "list[AcabamentoExterno]",
+        "compartimentos": "list[CompartimentoConfiguracao] com ao menos um item",
+        "portas": "list[PortaConfiguracao]"
+      }
+    },
+    "AcabamentoExterno": {
+      "campos": {
+        "id": "int positivo",
+        "posicao": "Posicao",
+        "estilo_acabamento": "EstiloAcabamento",
+        "extensao_cm": "float positivo",
+        "espessura": "Espessura",
+        "corte_extremidade_1": "Corte",
+        "corte_extremidade_2": "Corte"
+      }
+    },
+    "Limites": {
+      "campos": {
         "altura_minima_cm": "decimal positivo menor ou igual a altura_maxima_cm",
         "altura_maxima_cm": "decimal positivo maior ou igual a altura_minima_cm",
         "largura_minima_cm": "decimal positivo menor ou igual a largura_maxima_cm",
         "largura_maxima_cm": "decimal positivo maior ou igual a largura_minima_cm",
         "profundidade_minima_cm": "decimal positivo menor ou igual a profundidade_maxima_cm",
         "profundidade_maxima_cm": "decimal positivo maior ou igual a profundidade_minima_cm",
-        "ativo": "bool",
-        "detalhes": "list[DetalheConfiguracao] com ao menos um item"
+        "espessura_minima_cm": "decimal positivo menor ou igual a espessura_maxima_cm",
+        "espessura_maxima_cm": "decimal positivo maior ou igual a espessura_minima_cm"
       }
     },
-    "DetalheConfiguracao": {
+    "CompartimentoConfiguracao": {
       "campos": {
         "id": "int positivo",
-        "tipo": "TipoConfiguracao",
         "percentual_ocupacao_vertical": "float maior que 0 e menor ou igual a 100",
         "percentual_ocupacao_horizontal": "float maior que 0 e menor ou igual a 100",
-        "quantidade_portas": "int entre 0 e 10, inclusive, para COMPARTIMENTO; null para PORTA",
-        "abertura_porta": "AberturaPorta quando o COMPARTIMENTO possuir portas; null quando a quantidade for zero ou o tipo for PORTA",
         "em_cima_de_id": "int positivo ou null",
         "embaixo_de_id": "int positivo ou null",
         "a_direita_de_id": "int positivo ou null",
         "a_esquerda_de_id": "int positivo ou null"
       },
-      "observacao": "As referências por id representam outros detalhes da mesma configuração; a referência inversa para Configuracao é determinada pelo aninhamento."
+      "observacao": "As referências por id representam outros compartimentos da mesma configuração; a referência inversa para Configuracao é determinada pelo aninhamento."
+    },
+    "PortaConfiguracao": {
+      "campos": {
+        "id": "int positivo",
+        "percentual_ocupacao_vertical": "float maior que 0 e menor ou igual a 100",
+        "percentual_ocupacao_horizontal": "float maior que 0 e menor ou igual a 100",
+        "abertura": "AberturaPorta",
+        "em_cima_de_id": "int positivo ou null",
+        "embaixo_de_id": "int positivo ou null",
+        "a_direita_de_id": "int positivo ou null",
+        "a_esquerda_de_id": "int positivo ou null"
+      }
     }
   },
   "enums": {
     "TipoMovel": [
       "ARMARIO"
     ],
+    "DirecaoVertical": [
+      "cima_baixo",
+      "baixo_cima"
+    ],
+    "DirecaoHorizontal": [
+      "direita_esquerda",
+      "esquerda_direita"
+    ],
     "EstiloMovel": [
       "MULTIUSO",
       "GUARDA_ROUPA",
       "ARMARIO_AEREO"
     ],
-    "TipoConfiguracao": [
-      "COMPARTIMENTO",
-      "PORTA"
-    ],
     "AberturaPorta": [
       "ABERTURA VERTICAL PARA DIREITA",
       "ABERTURA VERTICAL PARA ESQUERDA",
       "ABERTURA HORIZONTAL PARA CIMA",
-      "ABERTURA HORIZONTAL PARA BAIXO"
+      "ABERTURA HORIZONTAL PARA BAIXO",
+      "PORTA CORRER"
+    ],
+    "Posicao": [
+      "SUPERIOR",
+      "INFERIOR",
+      "DIREITA",
+      "ESQUERDA"
+    ],
+    "EstiloAcabamento": [
+      "INTERNO",
+      "EXTERNO"
+    ],
+    "Espessura": [
+      "6 mm",
+      "15 mm",
+      "18 mm"
+    ],
+    "Corte": [
+      "reto",
+      "meia esquadria"
     ]
+  },
+  "mapeamento_contratos": {
+    "descricao": "Os campos de domínio mantêm os nomes das entidades; API e JSON preservam os nomes públicos existentes.",
+    "campos": {
+      "tipo": "Configuracao.tipo (propriedade derivada da entidade concreta)",
+      "ConfiguracaoArmario.estilo_armario": "estilo",
+      "AcabamentoExterno.posicao": "acabamentos[].tipo_acabamento"
+    }
   },
   "invariantes": [
     "O id da configuração deve ser único no arquivo.",
     "Todos os limites dimensionais devem ser positivos e expressos em centímetros.",
-    "Os limites mínimos de altura, largura e profundidade não podem superar os respectivos limites máximos.",
-    "Os ids dos detalhes devem ser únicos dentro da configuração.",
-    "Detalhes do tipo COMPARTIMENTO devem informar uma quantidade de portas inteira entre 0 e 10, inclusive.",
-    "Quando um COMPARTIMENTO possuir uma ou mais portas, sua abertura deve ser ABERTURA VERTICAL PARA DIREITA, ABERTURA VERTICAL PARA ESQUERDA, ABERTURA HORIZONTAL PARA CIMA ou ABERTURA HORIZONTAL PARA BAIXO.",
-    "Quando um COMPARTIMENTO possuir zero portas, sua abertura não deve ser informada.",
-    "Detalhes do tipo PORTA não devem informar quantidade_portas nem abertura_porta.",
-    "Toda referência espacial deve apontar para um detalhe existente na mesma configuração.",
-    "Um detalhe não pode referenciar a si próprio.",
-    "Um detalhe não pode estar simultaneamente acima e abaixo, nem à direita e à esquerda, do mesmo detalhe.",
+    "Os limites mínimos de altura, largura, profundidade e espessura não podem superar os respectivos limites máximos.",
+    "Os ids dos acabamentos são positivos e únicos dentro da coleção acabamentos.",
+    "Os ids dos compartimentos são positivos e únicos dentro da coleção compartimentos.",
+    "Os ids das portas são positivos e únicos dentro da coleção portas.",
+    "Cada CompartimentoConfiguracao representa um compartimento.",
+    "Cada PortaConfiguracao representa exatamente uma porta e deve informar abertura.",
+    "As referências espaciais de compartimentos apontam para itens da coleção compartimentos; as referências de portas apontam para itens da coleção portas.",
+    "Um compartimento não pode referenciar a si próprio.",
+    "Um compartimento não pode estar simultaneamente acima e abaixo, nem à direita e à esquerda, do mesmo compartimento.",
     "As relações espaciais não podem formar ciclos no eixo vertical nem no eixo horizontal.",
     "Quando duas relações inversas forem informadas, elas devem ser coerentes entre si."
   ]

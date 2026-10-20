@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import type { DetalheConfiguracao } from "../types/configuracao";
+import type {
+  CompartimentoConfiguracao,
+  PortaConfiguracao,
+} from "../types/configuracao";
 import { calcularLayoutPortasPrevia, calcularLayoutPrevia } from "./layoutPrevia";
 
-type RelacoesDetalhe = Partial<
+type RelacoesCompartimento = Partial<
   Pick<
-    DetalheConfiguracao,
+    CompartimentoConfiguracao,
     | "em_cima_de_id"
     | "embaixo_de_id"
     | "a_direita_de_id"
@@ -13,20 +16,17 @@ type RelacoesDetalhe = Partial<
   >
 >;
 
-/** Cria um detalhe válido para os cenários de cálculo da prévia. */
-function detalhe(
+/** Cria um compartimento válido para os cenários da prévia. */
+function compartimento(
   id: number,
   horizontal: number,
   vertical: number,
-  relacoes: RelacoesDetalhe = {},
-): DetalheConfiguracao {
+  relacoes: RelacoesCompartimento = {},
+): CompartimentoConfiguracao {
   return {
     id,
-    tipo: "COMPARTIMENTO",
     percentual_ocupacao_horizontal: horizontal,
     percentual_ocupacao_vertical: vertical,
-    quantidade_portas: 0,
-    abertura_porta: null,
     em_cima_de_id: null,
     embaixo_de_id: null,
     a_direita_de_id: null,
@@ -36,11 +36,11 @@ function detalhe(
 }
 
 describe("calcularLayoutPrevia", () => {
-  it("posiciona detalhes à direita e abaixo de suas referências", () => {
+  it("posiciona compartimentos à direita e abaixo de suas referências", () => {
     const resultado = calcularLayoutPrevia([
-      detalhe(1, 50, 30),
-      detalhe(2, 50, 30, { a_direita_de_id: 1 }),
-      detalhe(3, 100, 70, { embaixo_de_id: 1 }),
+      compartimento(1, 50, 30),
+      compartimento(2, 50, 30, { a_direita_de_id: 1 }),
+      compartimento(3, 100, 70, { embaixo_de_id: 1 }),
     ]);
     const porId = new Map(resultado.map((item) => [item.id, item]));
 
@@ -50,8 +50,8 @@ describe("calcularLayoutPrevia", () => {
 
   it("normaliza todos os retângulos dentro do viewBox", () => {
     const resultado = calcularLayoutPrevia([
-      detalhe(1, 33, 30, { a_esquerda_de_id: 2 }),
-      detalhe(2, 33, 30, { a_direita_de_id: 1 }),
+      compartimento(1, 33, 30, { a_esquerda_de_id: 2 }),
+      compartimento(2, 33, 30, { a_direita_de_id: 1 }),
     ]);
 
     for (const item of resultado) {
@@ -64,14 +64,14 @@ describe("calcularLayoutPrevia", () => {
 
   it("preenche a largura em faixas com quantidades diferentes de compartimentos", () => {
     const resultado = calcularLayoutPrevia([
-      detalhe(1, 33.33, 30, { a_esquerda_de_id: 2 }),
-      detalhe(2, 33.33, 30, { a_direita_de_id: 1, a_esquerda_de_id: 3 }),
-      detalhe(3, 33.33, 30, { a_direita_de_id: 2 }),
-      detalhe(4, 20, 70, { embaixo_de_id: 1, a_esquerda_de_id: 5 }),
-      detalhe(5, 20, 70, { embaixo_de_id: 1, a_direita_de_id: 4, a_esquerda_de_id: 6 }),
-      detalhe(6, 20, 70, { embaixo_de_id: 2, a_direita_de_id: 5, a_esquerda_de_id: 7 }),
-      detalhe(7, 20, 70, { embaixo_de_id: 3, a_direita_de_id: 6, a_esquerda_de_id: 8 }),
-      detalhe(8, 20, 70, { embaixo_de_id: 3, a_direita_de_id: 7 }),
+      compartimento(1, 33.33, 30, { a_esquerda_de_id: 2 }),
+      compartimento(2, 33.33, 30, { a_direita_de_id: 1, a_esquerda_de_id: 3 }),
+      compartimento(3, 33.33, 30, { a_direita_de_id: 2 }),
+      compartimento(4, 20, 70, { embaixo_de_id: 1, a_esquerda_de_id: 5 }),
+      compartimento(5, 20, 70, { embaixo_de_id: 1, a_direita_de_id: 4, a_esquerda_de_id: 6 }),
+      compartimento(6, 20, 70, { embaixo_de_id: 2, a_direita_de_id: 5, a_esquerda_de_id: 7 }),
+      compartimento(7, 20, 70, { embaixo_de_id: 3, a_direita_de_id: 6, a_esquerda_de_id: 8 }),
+      compartimento(8, 20, 70, { embaixo_de_id: 3, a_direita_de_id: 7 }),
     ]);
 
     const faixaSuperior = resultado.filter((item) => item.id <= 3);
@@ -99,42 +99,20 @@ describe("calcularLayoutPrevia", () => {
 });
 
 describe("calcularLayoutPortasPrevia", () => {
-  it("divide portas verticais pela largura do compartimento", () => {
-    const compartimento = detalhe(1, 100, 100);
-    compartimento.quantidade_portas = 2;
-    compartimento.abertura_porta = "ABERTURA VERTICAL PARA DIREITA";
-
-    const resultado = calcularLayoutPortasPrevia([compartimento]);
-
-    expect(resultado).toHaveLength(2);
-    expect(resultado[0].largura).toBeCloseTo(50);
-    expect(resultado[1].x).toBeCloseTo(50);
-  });
-
-  it("divide portas horizontais pela altura do compartimento", () => {
-    const compartimento = detalhe(1, 100, 100);
-    compartimento.quantidade_portas = 2;
-    compartimento.abertura_porta = "ABERTURA HORIZONTAL PARA CIMA";
-
-    const resultado = calcularLayoutPortasPrevia([compartimento]);
-
-    expect(resultado).toHaveLength(2);
-    expect(resultado[0].altura).toBeCloseTo(50);
-    expect(resultado[1].y).toBeCloseTo(50);
-  });
-
-  it("representa detalhes do tipo porta e ignora compartimentos sem portas", () => {
-    const semPorta = detalhe(1, 50, 100);
-    const porta: DetalheConfiguracao = {
-      ...detalhe(2, 50, 100, { a_direita_de_id: 1 }),
-      tipo: "PORTA",
-      quantidade_portas: null,
-      abertura_porta: null,
+  it("representa cada porta uma vez", () => {
+    const portaEsquerda: PortaConfiguracao = {
+      ...compartimento(2, 50, 100, { a_esquerda_de_id: 3 }),
+      abertura: "ABERTURA VERTICAL PARA DIREITA",
+    };
+    const portaDireita: PortaConfiguracao = {
+      ...compartimento(3, 50, 100, { a_direita_de_id: 2 }),
+      abertura: "ABERTURA VERTICAL PARA ESQUERDA",
     };
 
-    const resultado = calcularLayoutPortasPrevia([semPorta, porta]);
+    const resultado = calcularLayoutPortasPrevia([portaEsquerda, portaDireita]);
 
-    expect(resultado).toHaveLength(1);
-    expect(resultado[0].id).toBe("2-1");
+    expect(resultado).toHaveLength(2);
+    expect(resultado[0].id).toBe("2");
+    expect(resultado[1].x).toBeCloseTo(50);
   });
 });

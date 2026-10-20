@@ -5,21 +5,44 @@
       "id": 1,
       "tipo": "ARMARIO",
       "estilo": "GUARDA_ROUPA",
-      "altura_minima_cm": 100.0,
-      "altura_maxima_cm": 240.0,
-      "largura_minima_cm": 100.0,
-      "largura_maxima_cm": 200.0,
-      "profundidade_minima_cm": 40.0,
-      "profundidade_maxima_cm": 50.0,
+      "limites": {
+        "altura_minima_cm": 100.0,
+        "altura_maxima_cm": 240.0,
+        "largura_minima_cm": 100.0,
+        "largura_maxima_cm": 200.0,
+        "profundidade_minima_cm": 40.0,
+        "profundidade_maxima_cm": 50.0,
+        "espessura_minima_cm": 0.6,
+        "espessura_maxima_cm": 1.8
+      },
       "ativo": true,
-      "detalhes": [
+      "direcao_vertical": "cima_baixo",
+      "direcao_horizontal": "esquerda_direita",
+      "acabamentos": [
         {
           "id": 1,
-          "tipo": "COMPARTIMENTO",
+          "tipo_acabamento": "SUPERIOR",
+          "estilo_acabamento": "EXTERNO",
+          "extensao_cm": 5.0,
+          "espessura": "15 mm",
+          "corte_extremidade_1": "reto",
+          "corte_extremidade_2": "reto"
+        },
+        {
+          "id": 2,
+          "tipo_acabamento": "INFERIOR",
+          "estilo_acabamento": "INTERNO",
+          "extensao_cm": 5.0,
+          "espessura": "15 mm",
+          "corte_extremidade_1": "reto",
+          "corte_extremidade_2": "reto"
+        }
+      ],
+      "compartimentos": [
+        {
+          "id": 1,
           "percentual_ocupacao_vertical": 30.0,
           "percentual_ocupacao_horizontal": 33.33,
-          "quantidade_portas": 1,
-          "abertura_porta": "ABERTURA VERTICAL PARA DIREITA",
           "em_cima_de_id": null,
           "embaixo_de_id": null,
           "a_direita_de_id": null,
@@ -27,11 +50,8 @@
         },
         {
           "id": 2,
-          "tipo": "COMPARTIMENTO",
           "percentual_ocupacao_vertical": 30.0,
           "percentual_ocupacao_horizontal": 33.33,
-          "quantidade_portas": 1,
-          "abertura_porta": "ABERTURA VERTICAL PARA ESQUERDA",
           "em_cima_de_id": null,
           "embaixo_de_id": null,
           "a_direita_de_id": 1,
@@ -39,11 +59,8 @@
         },
         {
           "id": 3,
-          "tipo": "COMPARTIMENTO",
           "percentual_ocupacao_vertical": 30.0,
           "percentual_ocupacao_horizontal": 33.33,
-          "quantidade_portas": 1,
-          "abertura_porta": "ABERTURA VERTICAL PARA DIREITA",
           "em_cima_de_id": null,
           "embaixo_de_id": null,
           "a_direita_de_id": 2,
@@ -51,11 +68,8 @@
         },
         {
           "id": 4,
-          "tipo": "COMPARTIMENTO",
           "percentual_ocupacao_vertical": 70.0,
           "percentual_ocupacao_horizontal": 20.0,
-          "quantidade_portas": 1,
-          "abertura_porta": "ABERTURA VERTICAL PARA ESQUERDA",
           "em_cima_de_id": null,
           "embaixo_de_id": 1,
           "a_direita_de_id": null,
@@ -63,11 +77,8 @@
         },
         {
           "id": 5,
-          "tipo": "COMPARTIMENTO",
           "percentual_ocupacao_vertical": 70.0,
           "percentual_ocupacao_horizontal": 20.0,
-          "quantidade_portas": 1,
-          "abertura_porta": "ABERTURA VERTICAL PARA DIREITA",
           "em_cima_de_id": null,
           "embaixo_de_id": 1,
           "a_direita_de_id": 4,
@@ -75,11 +86,8 @@
         },
         {
           "id": 6,
-          "tipo": "COMPARTIMENTO",
           "percentual_ocupacao_vertical": 70.0,
           "percentual_ocupacao_horizontal": 20.0,
-          "quantidade_portas": 1,
-          "abertura_porta": "ABERTURA VERTICAL PARA ESQUERDA",
           "em_cima_de_id": null,
           "embaixo_de_id": 2,
           "a_direita_de_id": 5,
@@ -87,11 +95,8 @@
         },
         {
           "id": 7,
-          "tipo": "COMPARTIMENTO",
           "percentual_ocupacao_vertical": 70.0,
           "percentual_ocupacao_horizontal": 20.0,
-          "quantidade_portas": 1,
-          "abertura_porta": "ABERTURA VERTICAL PARA DIREITA",
           "em_cima_de_id": null,
           "embaixo_de_id": 3,
           "a_direita_de_id": 6,
@@ -99,14 +104,93 @@
         },
         {
           "id": 8,
-          "tipo": "COMPARTIMENTO",
           "percentual_ocupacao_vertical": 70.0,
           "percentual_ocupacao_horizontal": 20.0,
-          "quantidade_portas": 1,
-          "abertura_porta": "ABERTURA VERTICAL PARA ESQUERDA",
           "em_cima_de_id": null,
           "embaixo_de_id": 3,
           "a_direita_de_id": 7,
+          "a_esquerda_de_id": null
+        }
+      ],
+      "portas": [
+        {
+          "id": 9,
+          "percentual_ocupacao_vertical": 30.0,
+          "percentual_ocupacao_horizontal": 33.33,
+          "abertura": "ABERTURA VERTICAL PARA DIREITA",
+          "em_cima_de_id": null,
+          "embaixo_de_id": null,
+          "a_direita_de_id": null,
+          "a_esquerda_de_id": 10
+        },
+        {
+          "id": 10,
+          "percentual_ocupacao_vertical": 30.0,
+          "percentual_ocupacao_horizontal": 33.33,
+          "abertura": "ABERTURA VERTICAL PARA ESQUERDA",
+          "em_cima_de_id": null,
+          "embaixo_de_id": null,
+          "a_direita_de_id": 9,
+          "a_esquerda_de_id": 11
+        },
+        {
+          "id": 11,
+          "percentual_ocupacao_vertical": 30.0,
+          "percentual_ocupacao_horizontal": 33.33,
+          "abertura": "ABERTURA VERTICAL PARA DIREITA",
+          "em_cima_de_id": null,
+          "embaixo_de_id": null,
+          "a_direita_de_id": 10,
+          "a_esquerda_de_id": null
+        },
+        {
+          "id": 12,
+          "percentual_ocupacao_vertical": 70.0,
+          "percentual_ocupacao_horizontal": 20.0,
+          "abertura": "ABERTURA VERTICAL PARA ESQUERDA",
+          "em_cima_de_id": null,
+          "embaixo_de_id": 9,
+          "a_direita_de_id": null,
+          "a_esquerda_de_id": 13
+        },
+        {
+          "id": 13,
+          "percentual_ocupacao_vertical": 70.0,
+          "percentual_ocupacao_horizontal": 20.0,
+          "abertura": "ABERTURA VERTICAL PARA DIREITA",
+          "em_cima_de_id": null,
+          "embaixo_de_id": 9,
+          "a_direita_de_id": 12,
+          "a_esquerda_de_id": 14
+        },
+        {
+          "id": 14,
+          "percentual_ocupacao_vertical": 70.0,
+          "percentual_ocupacao_horizontal": 20.0,
+          "abertura": "ABERTURA VERTICAL PARA ESQUERDA",
+          "em_cima_de_id": null,
+          "embaixo_de_id": 10,
+          "a_direita_de_id": 13,
+          "a_esquerda_de_id": 15
+        },
+        {
+          "id": 15,
+          "percentual_ocupacao_vertical": 70.0,
+          "percentual_ocupacao_horizontal": 20.0,
+          "abertura": "ABERTURA VERTICAL PARA DIREITA",
+          "em_cima_de_id": null,
+          "embaixo_de_id": 11,
+          "a_direita_de_id": 14,
+          "a_esquerda_de_id": 16
+        },
+        {
+          "id": 16,
+          "percentual_ocupacao_vertical": 70.0,
+          "percentual_ocupacao_horizontal": 20.0,
+          "abertura": "ABERTURA VERTICAL PARA ESQUERDA",
+          "em_cima_de_id": null,
+          "embaixo_de_id": 11,
+          "a_direita_de_id": 15,
           "a_esquerda_de_id": null
         }
       ]
@@ -115,21 +199,44 @@
       "id": 2,
       "tipo": "ARMARIO",
       "estilo": "MULTIUSO",
-      "altura_minima_cm": 100.0,
-      "altura_maxima_cm": 200.0,
-      "largura_minima_cm": 60.0,
-      "largura_maxima_cm": 100.0,
-      "profundidade_minima_cm": 40.0,
-      "profundidade_maxima_cm": 50.0,
+      "limites": {
+        "altura_minima_cm": 100.0,
+        "altura_maxima_cm": 200.0,
+        "largura_minima_cm": 60.0,
+        "largura_maxima_cm": 100.0,
+        "profundidade_minima_cm": 40.0,
+        "profundidade_maxima_cm": 50.0,
+        "espessura_minima_cm": 0.6,
+        "espessura_maxima_cm": 1.8
+      },
       "ativo": true,
-      "detalhes": [
+      "direcao_vertical": "cima_baixo",
+      "direcao_horizontal": "esquerda_direita",
+      "acabamentos": [
         {
           "id": 1,
-          "tipo": "COMPARTIMENTO",
+          "tipo_acabamento": "SUPERIOR",
+          "estilo_acabamento": "INTERNO",
+          "extensao_cm": 5.0,
+          "espessura": "15 mm",
+          "corte_extremidade_1": "reto",
+          "corte_extremidade_2": "reto"
+        },
+        {
+          "id": 2,
+          "tipo_acabamento": "INFERIOR",
+          "estilo_acabamento": "EXTERNO",
+          "extensao_cm": 5.0,
+          "espessura": "15 mm",
+          "corte_extremidade_1": "reto",
+          "corte_extremidade_2": "reto"
+        }
+      ],
+      "compartimentos": [
+        {
+          "id": 1,
           "percentual_ocupacao_vertical": 100.0,
           "percentual_ocupacao_horizontal": 50.0,
-          "quantidade_portas": 1,
-          "abertura_porta": "ABERTURA HORIZONTAL PARA CIMA",
           "em_cima_de_id": null,
           "embaixo_de_id": null,
           "a_direita_de_id": null,
@@ -137,14 +244,33 @@
         },
         {
           "id": 2,
-          "tipo": "COMPARTIMENTO",
           "percentual_ocupacao_vertical": 100.0,
           "percentual_ocupacao_horizontal": 50.0,
-          "quantidade_portas": 1,
-          "abertura_porta": "ABERTURA HORIZONTAL PARA BAIXO",
           "em_cima_de_id": null,
           "embaixo_de_id": null,
           "a_direita_de_id": 1,
+          "a_esquerda_de_id": null
+        }
+      ],
+      "portas": [
+        {
+          "id": 3,
+          "percentual_ocupacao_vertical": 100.0,
+          "percentual_ocupacao_horizontal": 50.0,
+          "abertura": "ABERTURA HORIZONTAL PARA CIMA",
+          "em_cima_de_id": null,
+          "embaixo_de_id": null,
+          "a_direita_de_id": null,
+          "a_esquerda_de_id": 4
+        },
+        {
+          "id": 4,
+          "percentual_ocupacao_vertical": 100.0,
+          "percentual_ocupacao_horizontal": 50.0,
+          "abertura": "ABERTURA HORIZONTAL PARA BAIXO",
+          "em_cima_de_id": null,
+          "embaixo_de_id": null,
+          "a_direita_de_id": 3,
           "a_esquerda_de_id": null
         }
       ]
@@ -153,21 +279,35 @@
       "id": 3,
       "tipo": "ARMARIO",
       "estilo": "ARMARIO_AEREO",
-      "altura_minima_cm": 80.0,
-      "altura_maxima_cm": 150.0,
-      "largura_minima_cm": 100.0,
-      "largura_maxima_cm": 200.0,
-      "profundidade_minima_cm": 40.0,
-      "profundidade_maxima_cm": 50.0,
+      "limites": {
+        "altura_minima_cm": 80.0,
+        "altura_maxima_cm": 150.0,
+        "largura_minima_cm": 100.0,
+        "largura_maxima_cm": 200.0,
+        "profundidade_minima_cm": 40.0,
+        "profundidade_maxima_cm": 50.0,
+        "espessura_minima_cm": 0.6,
+        "espessura_maxima_cm": 1.8
+      },
       "ativo": true,
-      "detalhes": [
+      "direcao_vertical": "cima_baixo",
+      "direcao_horizontal": "esquerda_direita",
+      "acabamentos": [
         {
           "id": 1,
-          "tipo": "COMPARTIMENTO",
+          "tipo_acabamento": "SUPERIOR",
+          "estilo_acabamento": "EXTERNO",
+          "extensao_cm": 5.0,
+          "espessura": "15 mm",
+          "corte_extremidade_1": "reto",
+          "corte_extremidade_2": "reto"
+        }
+      ],
+      "compartimentos": [
+        {
+          "id": 1,
           "percentual_ocupacao_vertical": 50.0,
           "percentual_ocupacao_horizontal": 100.0,
-          "quantidade_portas": 1,
-          "abertura_porta": "ABERTURA VERTICAL PARA DIREITA",
           "em_cima_de_id": null,
           "embaixo_de_id": null,
           "a_direita_de_id": null,
@@ -175,23 +315,20 @@
         },
         {
           "id": 2,
-          "tipo": "COMPARTIMENTO",
           "percentual_ocupacao_vertical": 50.0,
           "percentual_ocupacao_horizontal": 100.0,
-          "quantidade_portas": 0,
-          "abertura_porta": null,
           "em_cima_de_id": null,
           "embaixo_de_id": 1,
           "a_direita_de_id": null,
           "a_esquerda_de_id": null
-        },
+        }
+      ],
+      "portas": [
         {
           "id": 3,
-          "tipo": "PORTA",
           "percentual_ocupacao_vertical": 100.0,
           "percentual_ocupacao_horizontal": 100.0,
-          "quantidade_portas": null,
-          "abertura_porta": null,
+          "abertura": "ABERTURA VERTICAL PARA DIREITA",
           "em_cima_de_id": null,
           "embaixo_de_id": null,
           "a_direita_de_id": null,

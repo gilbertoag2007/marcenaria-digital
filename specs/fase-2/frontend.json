@@ -1,6 +1,6 @@
 {
   "spec": "fase-2-frontend",
-  "versao": 4,
+  "versao": 10,
   "fase": 2,
   "tecnologias": {
     "framework": "Vue 3",
@@ -11,26 +11,25 @@
   },
   "objetivo": "Exibir e permitir selecionar configurações ativas por meio de um catálogo com prévias 2D dos layouts interno e externo.",
   "fonte_de_dados": {
-    "principal": "GET /api/v1/configuracoes",
-    "detalhe": "GET /api/v1/configuracoes/{id}",
-    "estilos_disponiveis": "GET /api/v1/estilos-armario"
+    "endpoint_consumido": "GET /api/v1/configuracoes",
+    "mapeamento_de_dominio": {
+      "tipo": "Configuracao.tipo (derivado pela entidade concreta)",
+      "estilo": "ConfiguracaoArmario.estilo_armario",
+      "acabamentos[].tipo_acabamento": "AcabamentoExterno.posicao"
+    }
   },
   "componentes_logicos": [
     {
       "nome": "CatalogoEstilos",
-      "responsabilidade": "Carregar as configurações ativas, controlar os estados da tela e apresentar uma opção para cada configuração."
+      "responsabilidade": "Carregar configurações ativas, controlar os estados de carregamento, vazio e erro, permitir busca, ordenação por estilo e seleção transitória por id."
     },
     {
       "nome": "PreviaEstilo2D",
-      "responsabilidade": "Representar em SVG somente os compartimentos do Layout Interno, em escala normalizada e sem permitir que portas externas ocultem suas divisões."
+      "responsabilidade": "Representar em SVG os compartimentos do Layout Interno em escala normalizada e cada acabamento em sua posição de borda; a miniatura não interpreta a extensão física nem diferencia visualmente estilo_acabamento."
     },
     {
       "nome": "PreviaPortas2D",
-      "responsabilidade": "Representar em SVG as portas do Layout Externo, dividindo a área do compartimento em folhas iguais conforme a quantidade e a orientação da abertura."
-    },
-    {
-      "nome": "SeletorConfiguracao",
-      "responsabilidade": "Manter no estado transitório o id da configuração selecionada e destacar visualmente a escolha atual."
+      "responsabilidade": "Representar em SVG um retângulo por item da coleção portas conforme seus percentuais e relações espaciais."
     }
   ],
   "apresentacao": {
@@ -41,16 +40,32 @@
     },
     "informacoes_por_opcao": [
       "estilo",
-      "limites mínimos e máximos de altura, largura e profundidade",
+      "limites mínimos e máximos de altura, largura, profundidade e espessura recebidos no objeto limites",
       "prévia SVG do Layout Interno",
       "prévia SVG do Layout Externo",
-      "quantidade de compartimentos",
-      "quantidade de portas"
+      "quantidade total de acabamentos sem discriminar tipo ou posição",
+      "quantidade total de portas",
+      "quantidade total de compartimentos",
+      "status e ação de seleção"
     ],
-    "selecao": "Exatamente uma configuração pode ficar selecionada por vez; uma nova escolha substitui a anterior."
+    "colunas_tabela": [
+      "Layout Interno",
+      "Layout Externo",
+      "Tipo de móvel",
+      "Estilo",
+      "Limites",
+      "Acabamentos",
+      "Portas",
+      "Compartimentos",
+      "Status",
+      "Ações"
+    ],
+    "busca": "Filtra por id, tipo, rótulo do estilo e posição/estilo dos acabamentos.",
+    "limites": "Exibe os intervalos de altura, largura, profundidade e espessura do objeto limites, formatados em cm sem recalcular os valores.",
+    "selecao": "No máximo uma configuração fica selecionada; inicialmente nenhuma está selecionada e uma nova escolha substitui a anterior."
   },
   "estados": {
-    "carregando": "Informar que o catálogo está sendo carregado e impedir confirmação prematura.",
+    "carregando": "Informar que o catálogo está sendo carregado.",
     "vazio": "Informar que não há estilos disponíveis quando a API responder com lista vazia.",
     "erro": "Apresentar mensagem compreensível e permitir nova tentativa sem expor detalhes internos.",
     "pronto": "Exibir todas as configurações ativas e permitir a seleção."
@@ -64,14 +79,17 @@
   },
   "regras": [
     "Não desenhar medidas físicas nem peças calculadas nas prévias.",
-    "O Layout Interno deve desenhar somente detalhes COMPARTIMENTO, com preenchimento uniforme entre configurações e divisões visíveis.",
-    "O Layout Externo deve desenhar detalhes PORTA e portas declaradas por COMPARTIMENTO; quantidades maiores que uma devem ser divididas em folhas iguais conforme a orientação da abertura.",
-    "A coluna Elementos deve manter esse nome e apresentar a quantidade de compartimentos seguida da quantidade de portas.",
+    "O Layout Interno deve desenhar a coleção compartimentos e cada acabamento em sua posição de borda, com preenchimento uniforme entre configurações e divisões visíveis.",
+    "O Layout Externo deve desenhar exatamente um retângulo para cada item da coleção portas.",
+    "A coluna Acabamentos apresenta somente a quantidade total de itens, sem discriminar tipo ou posição.",
+    "A coluna Portas apresenta a quantidade total de portas.",
+    "A coluna Compartimentos apresenta a quantidade total de compartimentos.",
+    "A seleção é mantida no estado transitório do catálogo e identificada pelo id da configuração.",
     "Não exibir configurações inativas, mesmo que dados inválidos sejam fornecidos ao componente.",
     "Não persistir a seleção no backend, em banco de dados ou no arquivo JSON.",
     "A identidade da seleção deve ser o id da configuração, não apenas o valor do estilo.",
     "Todo acesso à API deve utilizar contratos tipados em TypeScript.",
-    "Os contratos TypeScript devem usar uma união discriminada: COMPARTIMENTO aceita quantidade de 0 a 10 e abertura condicionada à quantidade; PORTA mantém ambos os campos nulos.",
+    "Os contratos TypeScript devem representar compartimentos e portas em coleções distintas e exigir abertura em cada porta.",
     "A aplicação deve executar e gerar seu pacote de produção por meio do Vite.",
     "A falha de uma prévia não pode provocar a exibição de dados internos da API."
   ]

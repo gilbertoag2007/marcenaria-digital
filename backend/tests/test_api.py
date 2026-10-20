@@ -22,126 +22,142 @@ def test_cria_configuracao_e_documenta_contrato(
     assert schema_422["$ref"].endswith("/ConfiguracaoInvalidaResponse")
     propriedades = openapi["components"]["schemas"]["ConfiguracaoInput"]["properties"]
     assert {
+        "acabamentos",
+        "limites",
+        "compartimentos",
+        "portas",
+        "direcao_vertical",
+        "direcao_horizontal",
+    } <= propriedades.keys()
+    assert "detalhes" not in propriedades
+    propriedades_limites = openapi["components"]["schemas"]["LimitesInput"][
+        "properties"
+    ]
+    assert {
         "altura_minima_cm",
         "altura_maxima_cm",
         "largura_minima_cm",
         "largura_maxima_cm",
         "profundidade_minima_cm",
         "profundidade_maxima_cm",
-    } <= propriedades.keys()
-    propriedades_detalhe = openapi["components"]["schemas"][
-        "DetalheConfiguracaoInput"
+        "espessura_minima_cm",
+        "espessura_maxima_cm",
+    } <= propriedades_limites.keys()
+    propriedades_acabamento = openapi["components"]["schemas"][
+        "AcabamentoExternoInput"
     ]["properties"]
-    assert {"quantidade_portas", "abertura_porta"} <= propriedades_detalhe.keys()
+    assert {
+        "id",
+        "tipo_acabamento",
+        "estilo_acabamento",
+        "extensao_cm",
+        "espessura",
+        "corte_extremidade_1",
+        "corte_extremidade_2",
+    } <= propriedades_acabamento.keys()
+    propriedades_compartimento = openapi["components"]["schemas"][
+        "CompartimentoConfiguracaoInput"
+    ]["properties"]
+    assert "abertura_porta" not in propriedades_compartimento
+    assert "quantidade_portas" not in propriedades_compartimento
+    assert "tipo" not in propriedades_compartimento
+    propriedades_porta = openapi["components"]["schemas"][
+        "PortaConfiguracaoInput"
+    ]["properties"]
+    assert "abertura" in propriedades_porta
     valores_abertura = openapi["components"]["schemas"]["AberturaPorta"]["enum"]
     assert valores_abertura == [
         "ABERTURA VERTICAL PARA DIREITA",
         "ABERTURA VERTICAL PARA ESQUERDA",
         "ABERTURA HORIZONTAL PARA CIMA",
         "ABERTURA HORIZONTAL PARA BAIXO",
+        "PORTA CORRER",
     ]
 
 
-def test_aceita_limites_da_quantidade_de_portas(
+def test_aceita_configuracao_legada_sem_campo_acabamentos(
     arquivo_configuracoes: Path, payload_valido: dict
 ) -> None:
-    """Aceita as quantidades mínima e máxima de portas."""
+    """Preserva a compatibilidade com configurações anteriores ao novo campo."""
     cliente = TestClient(create_app(arquivo_configuracoes))
-    payload_valido["detalhes"][0]["quantidade_portas"] = 0
-    payload_valido["detalhes"][0]["abertura_porta"] = None
+    del payload_valido["acabamentos"]
 
     resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
 
     assert resposta.status_code == 201
-    assert resposta.json()["detalhes"][0]["quantidade_portas"] == 0
+    assert resposta.json()["acabamentos"] == []
 
-    payload_valido["id"] = 2
-    payload_valido["detalhes"][0]["quantidade_portas"] = 10
-    payload_valido["detalhes"][0]["abertura_porta"] = (
-        "ABERTURA HORIZONTAL PARA BAIXO"
+
+def test_rejeita_campo_quantidade_portas_removido(
+    arquivo_configuracoes: Path, payload_valido: dict
+) -> None:
+    """Rejeita o antigo campo redundante no contrato estrito da API."""
+    cliente = TestClient(create_app(arquivo_configuracoes))
+    payload_valido["compartimentos"][0]["quantidade_portas"] = 1
+
+    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
+
+    assert resposta.status_code == 422
+    assert resposta.json()["detalhes"][0]["campo"] == (
+        "compartimentos.0.quantidade_portas"
     )
 
-    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
 
-    assert resposta.status_code == 201
-    assert resposta.json()["detalhes"][0]["quantidade_portas"] == 10
-
-
-def test_rejeita_abertura_quando_quantidade_de_portas_e_zero(
+def test_rejeita_colecao_detalhes_removida(
     arquivo_configuracoes: Path, payload_valido: dict
 ) -> None:
-    """Rejeita abertura informada para um compartimento sem portas."""
+    """Rejeita a coleção antiga após a renomeação para compartimentos."""
     cliente = TestClient(create_app(arquivo_configuracoes))
-    payload_valido["detalhes"][0]["quantidade_portas"] = 0
-
-    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
-
-    assert resposta.status_code == 422
-    assert {
-        "campo": "detalhes.0.abertura_porta",
-        "mensagem": "não deve ser informada quando a quantidade de portas for zero",
-    } in resposta.json()["detalhes"]
-
-
-def test_rejeita_compartimento_com_portas_sem_abertura(
-    arquivo_configuracoes: Path, payload_valido: dict
-) -> None:
-    """Exige abertura para um compartimento que possui portas."""
-    cliente = TestClient(create_app(arquivo_configuracoes))
-    payload_valido["detalhes"][0]["abertura_porta"] = None
-
-    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
-
-    assert resposta.status_code == 422
-    assert resposta.json()["detalhes"][0]["campo"] == "detalhes.0.abertura_porta"
-
-
-def test_rejeita_compartimento_sem_quantidade_de_portas(
-    arquivo_configuracoes: Path, payload_valido: dict
-) -> None:
-    """Exige a quantidade de portas nos detalhes do tipo compartimento."""
-    cliente = TestClient(create_app(arquivo_configuracoes))
-    del payload_valido["detalhes"][0]["quantidade_portas"]
-    payload_valido["detalhes"][0]["abertura_porta"] = None
-
-    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
-
-    assert resposta.status_code == 422
-    assert resposta.json()["detalhes"][0]["campo"] == "detalhes.0.quantidade_portas"
-
-
-def test_rejeita_atributos_de_porta_em_detalhe_do_tipo_porta(
-    arquivo_configuracoes: Path, payload_valido: dict
-) -> None:
-    """Restringe quantidade e abertura aos detalhes do tipo compartimento."""
-    cliente = TestClient(create_app(arquivo_configuracoes))
-    payload_valido["detalhes"][1]["quantidade_portas"] = 1
-    payload_valido["detalhes"][1]["abertura_porta"] = (
-        "ABERTURA VERTICAL PARA ESQUERDA"
-    )
+    payload_valido["detalhes"] = payload_valido.pop("compartimentos")
 
     resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
 
     assert resposta.status_code == 422
     campos = {item["campo"] for item in resposta.json()["detalhes"]}
-    assert {
-        "detalhes.1.quantidade_portas",
-        "detalhes.1.abertura_porta",
-    } <= campos
+    assert {"compartimentos", "detalhes"} <= campos
 
 
-def test_rejeita_quantidade_de_portas_fora_do_intervalo(
+def test_rejeita_campo_tipo_removido(
     arquivo_configuracoes: Path, payload_valido: dict
 ) -> None:
-    """Rejeita uma quantidade de portas superior ao limite."""
+    """Rejeita o antigo discriminador no contrato estrito da API."""
     cliente = TestClient(create_app(arquivo_configuracoes))
-    payload_valido["detalhes"][0]["quantidade_portas"] = 11
+    payload_valido["compartimentos"][0]["tipo"] = "COMPARTIMENTO"
 
     resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
 
     assert resposta.status_code == 422
-    assert resposta.json()["detalhes"][0]["campo"] == "detalhes.0.quantidade_portas"
-    assert json.loads(arquivo_configuracoes.read_text())["configuracoes"] == []
+    assert resposta.json()["detalhes"][0]["campo"] == "compartimentos.0.tipo"
+
+
+def test_rejeita_campo_abertura_porta_removido(
+    arquivo_configuracoes: Path, payload_valido: dict
+) -> None:
+    """Rejeita o antigo campo de porta dentro de um compartimento."""
+    cliente = TestClient(create_app(arquivo_configuracoes))
+    payload_valido["compartimentos"][0]["abertura_porta"] = None
+
+    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
+
+    assert resposta.status_code == 422
+    assert resposta.json()["detalhes"][0]["campo"] == (
+        "compartimentos.0.abertura_porta"
+    )
+
+
+def test_rejeita_estilo_de_acabamento_desconhecido(
+    arquivo_configuracoes: Path, payload_valido: dict
+) -> None:
+    """Rejeita valores que não pertencem ao enum de estilo de acabamento."""
+    cliente = TestClient(create_app(arquivo_configuracoes))
+    payload_valido["acabamentos"][0]["estilo_acabamento"] = "EMBUTIDO"
+
+    resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
+
+    assert resposta.status_code == 422
+    assert resposta.json()["detalhes"][0]["campo"] == (
+        "acabamentos.0.estilo_acabamento"
+    )
 
 
 def test_rejeita_abertura_de_porta_desconhecida(
@@ -149,12 +165,12 @@ def test_rejeita_abertura_de_porta_desconhecida(
 ) -> None:
     """Rejeita valores que não pertencem ao enum de abertura."""
     cliente = TestClient(create_app(arquivo_configuracoes))
-    payload_valido["detalhes"][0]["abertura_porta"] = "ABERTURA DIAGONAL"
+    payload_valido["portas"][0]["abertura"] = "ABERTURA DIAGONAL"
 
     resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
 
     assert resposta.status_code == 422
-    assert resposta.json()["detalhes"][0]["campo"] == "detalhes.0.abertura_porta"
+    assert resposta.json()["detalhes"][0]["campo"] == "portas.0.abertura"
     assert json.loads(arquivo_configuracoes.read_text())["configuracoes"] == []
 
 
@@ -162,7 +178,7 @@ def test_retorna_422_e_nao_grava_payload_incompleto(
     arquivo_configuracoes: Path, payload_valido: dict
 ) -> None:
     cliente = TestClient(create_app(arquivo_configuracoes))
-    del payload_valido["detalhes"][0]["percentual_ocupacao_vertical"]
+    del payload_valido["compartimentos"][0]["percentual_ocupacao_vertical"]
     original = arquivo_configuracoes.read_text(encoding="utf-8")
 
     resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
@@ -170,7 +186,7 @@ def test_retorna_422_e_nao_grava_payload_incompleto(
     assert resposta.status_code == 422
     assert resposta.json()["erro"] == "configuracao_invalida"
     assert any(
-        item["campo"] == "detalhes.0.percentual_ocupacao_vertical"
+        item["campo"] == "compartimentos.0.percentual_ocupacao_vertical"
         for item in resposta.json()["detalhes"]
     )
     assert arquivo_configuracoes.read_text(encoding="utf-8") == original
@@ -180,14 +196,14 @@ def test_retorna_422_e_nao_grava_sem_limite_dimensional(
     arquivo_configuracoes: Path, payload_valido: dict
 ) -> None:
     cliente = TestClient(create_app(arquivo_configuracoes))
-    del payload_valido["altura_minima_cm"]
+    del payload_valido["limites"]["altura_minima_cm"]
     original = arquivo_configuracoes.read_text(encoding="utf-8")
 
     resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
 
     assert resposta.status_code == 422
     assert {
-        "campo": "altura_minima_cm",
+        "campo": "limites.altura_minima_cm",
         "mensagem": "campo obrigatório",
     } in resposta.json()["detalhes"]
     assert arquivo_configuracoes.read_text(encoding="utf-8") == original
@@ -197,14 +213,14 @@ def test_retorna_422_para_intervalo_dimensional_invertido(
     arquivo_configuracoes: Path, payload_valido: dict
 ) -> None:
     cliente = TestClient(create_app(arquivo_configuracoes))
-    payload_valido["largura_minima_cm"] = 200.5
-    payload_valido["largura_maxima_cm"] = 100.5
+    payload_valido["limites"]["largura_minima_cm"] = 200.5
+    payload_valido["limites"]["largura_maxima_cm"] = 100.5
 
     resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
 
     assert resposta.status_code == 422
     assert {
-        "campo": "largura_minima_cm",
+        "campo": "limites.largura_minima_cm",
         "mensagem": "deve ser menor ou igual a largura_maxima_cm",
     } in resposta.json()["detalhes"]
     assert json.loads(arquivo_configuracoes.read_text())["configuracoes"] == []
@@ -214,8 +230,8 @@ def test_retorna_422_para_relacao_ciclica_sem_gravar(
     arquivo_configuracoes: Path, payload_valido: dict
 ) -> None:
     cliente = TestClient(create_app(arquivo_configuracoes))
-    payload_valido["detalhes"][1]["em_cima_de_id"] = 10
-    payload_valido["detalhes"][1]["embaixo_de_id"] = None
+    payload_valido["compartimentos"][1]["em_cima_de_id"] = 10
+    payload_valido["compartimentos"][1]["embaixo_de_id"] = None
 
     resposta = cliente.post("/api/v1/configuracoes", json=payload_valido)
 

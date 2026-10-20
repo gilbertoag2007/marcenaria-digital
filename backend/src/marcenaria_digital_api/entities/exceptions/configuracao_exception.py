@@ -1,12 +1,16 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True, slots=True)
 class ErroValidacao:
     """Descreve uma inconsistência encontrada em um campo."""
 
-    campo: str
-    mensagem: str
+    campo: str = field(
+        metadata={"description": "Caminho do campo que apresentou inconsistência."}
+    )
+    mensagem: str = field(
+        metadata={"description": "Mensagem que descreve a inconsistência encontrada."}
+    )
 
 
 class ConfiguracaoInvalidaError(ValueError):

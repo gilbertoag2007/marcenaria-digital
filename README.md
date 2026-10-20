@@ -67,16 +67,29 @@ npm run dev
 O catálogo ficará disponível em `http://localhost:5173` e encaminhará as
 requisições locais para a API em `http://127.0.0.1:8000`.
 
-Detalhes do tipo `COMPARTIMENTO` expõem `quantidade_portas` (inteiro de 0 a 10).
-Quando a quantidade é positiva, `abertura_porta` deve indicar orientação e
-sentido: `ABERTURA VERTICAL PARA DIREITA`, `ABERTURA VERTICAL PARA ESQUERDA`,
-`ABERTURA HORIZONTAL PARA CIMA` ou `ABERTURA HORIZONTAL PARA BAIXO`. Quando a
-quantidade é zero, a abertura fica nula. Esses atributos não
-se aplicam a detalhes do tipo `PORTA`. O catálogo apresenta a quantidade total
-de portas informada pela configuração. Na lista de configurações cadastradas,
-**Layout Interno** mostra somente os compartimentos e preserva suas divisões;
-**Layout Externo** mostra as folhas das portas. A coluna **Elementos** informa
-separadamente as quantidades de compartimentos e portas.
+Em cada configuração, as faixas mínima e máxima de altura, largura,
+profundidade e espessura ficam agrupadas no objeto `limites`, com valores em
+centímetros. A API, o arquivo JSON e o frontend utilizam essa mesma estrutura.
+No domínio Python, `Configuracao` é abstrata e `ConfiguracaoArmario` representa
+o armário concreto. `ConfiguracaoArmario.estilo_armario` é exposto como
+`estilo` e `AcabamentoExterno.posicao` como `tipo_acabamento` nos contratos HTTP
+e JSON, preservando os nomes públicos existentes. `Limites` agrupa os oito
+valores mínimo/máximo de altura, largura, profundidade e espessura em
+centímetros. Os enums e seus valores suportados estão descritos em
+`backend/README.md` e em `specs/fase-1/dominio.json`.
+
+`compartimentos` contém as entidades `CompartimentoConfiguracao`. As portas ficam na
+coleção `portas`, e cada item informa sua `abertura`. O catálogo deriva a
+quantidade total pelo tamanho dessa coleção. Na
+lista de configurações cadastradas,
+**Layout Interno** mostra os compartimentos e os acabamentos configurados nas
+bordas, preservando suas divisões;
+**Layout Externo** mostra um retângulo por item da coleção de portas. As colunas
+**Acabamentos**, **Portas** e **Compartimentos** informam as quantidades totais
+correspondentes; a coluna Acabamentos não discrimina posição nem estilo. A
+tabela também exibe Tipo de móvel, Estilo, **Limites** dimensionais, Status e
+Ações. A busca e a ordenação por estilo operam sobre os dados recebidos, e a
+seleção é temporária no frontend e identificada pelo ID da configuração.
 
 ---
 

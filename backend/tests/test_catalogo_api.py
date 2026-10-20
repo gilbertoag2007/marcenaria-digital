@@ -17,6 +17,38 @@ def test_catalogo_versionado_pode_ser_consultado() -> None:
     assert resposta.json()
 
 
+def test_configuracao_id_1_preserva_os_acabamentos_do_catalogo() -> None:
+    """Confirma que a API entrega as duas peças de acabamento configuradas."""
+    cliente = TestClient(create_app())
+
+    resposta = cliente.get("/api/v1/configuracoes")
+
+    assert resposta.status_code == 200
+    configuracao = next(
+        item for item in resposta.json() if item["id"] == 1
+    )
+    assert configuracao["acabamentos"] == [
+        {
+            "id": 1,
+            "tipo_acabamento": "SUPERIOR",
+            "estilo_acabamento": "EXTERNO",
+            "extensao_cm": 5.0,
+            "espessura": "15 mm",
+            "corte_extremidade_1": "reto",
+            "corte_extremidade_2": "reto",
+        },
+        {
+            "id": 2,
+            "tipo_acabamento": "INFERIOR",
+            "estilo_acabamento": "INTERNO",
+            "extensao_cm": 5.0,
+            "espessura": "15 mm",
+            "corte_extremidade_1": "reto",
+            "corte_extremidade_2": "reto",
+        },
+    ]
+
+
 def _gravar_catalogo(
     arquivo_configuracoes: Path, payload_valido: dict
 ) -> list[dict]:

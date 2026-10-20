@@ -18,13 +18,20 @@ def test_adiciona_e_recupera_sem_perda_de_dados(
     repositorio = ConfiguracaoJsonRepository(arquivo_configuracoes)
     entidade = ConfiguracaoInput.model_validate(payload_valido).para_entidade()
 
+    assert entidade.estilo_armario.value == payload_valido["estilo"]
+    assert entidade.acabamentos[0].posicao.value == (
+        payload_valido["acabamentos"][0]["tipo_acabamento"]
+    )
+
     repositorio.adicionar(entidade)
 
     assert repositorio.obter_por_id(entidade.id) == entidade
     persistido = json.loads(arquivo_configuracoes.read_text(encoding="utf-8"))
     assert persistido["versao"] == 1
     assert persistido["configuracoes"][0] == payload_valido
-    assert isinstance(persistido["configuracoes"][0]["altura_minima_cm"], float)
+    assert isinstance(
+        persistido["configuracoes"][0]["limites"]["altura_minima_cm"], float
+    )
 
 
 def test_nao_duplica_id(arquivo_configuracoes: Path, payload_valido: dict) -> None:

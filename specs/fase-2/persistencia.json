@@ -1,6 +1,6 @@
 {
   "spec": "fase-2-persistencia",
-  "versao": 2,
+  "versao": 7,
   "fase": 2,
   "fonte_de_verdade": "backend/src/marcenaria_digital_api/repositories/json/configuracoes.json",
   "repository": {
@@ -23,7 +23,8 @@
   ],
   "regras": [
     "A estrutura e a versão do arquivo devem continuar iguais às definidas na Fase 1.",
-    "As consultas devem preservar quantidade_portas e abertura_porta quando aplicáveis e seus valores nulos nos demais casos.",
+    "As consultas devem preservar o objeto limites completo de cada configuração.",
+    "As consultas devem preservar separadamente compartimentos e portas, incluindo a abertura de cada porta.",
     "A leitura deve validar o arquivo completo antes de devolver qualquer resultado.",
     "A filtragem de configurações ativas deve ocorrer sem modificar os dados persistidos.",
     "A consulta por id não deve criar, atualizar nem remover configurações.",

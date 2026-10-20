@@ -1,4 +1,7 @@
-from marcenaria_digital_api.entities.configuracao import Configuracao
+from marcenaria_digital_api.entities.configuracao import (
+    Configuracao,
+    ConfiguracaoArmario,
+)
 from marcenaria_digital_api.entities.enums import EstiloMovel
 from marcenaria_digital_api.entities.exceptions import ConfiguracaoNaoEncontradaError
 from marcenaria_digital_api.repositories import ConfiguracaoRepository
@@ -36,7 +39,9 @@ class ConfiguracaoService:
         estilos: list[EstiloMovel] = []
         vistos: set[EstiloMovel] = set()
         for configuracao in self._repositorio.listar_ativas():
-            if configuracao.estilo not in vistos:
-                vistos.add(configuracao.estilo)
-                estilos.append(configuracao.estilo)
+            if not isinstance(configuracao, ConfiguracaoArmario):
+                continue
+            if configuracao.estilo_armario not in vistos:
+                vistos.add(configuracao.estilo_armario)
+                estilos.append(configuracao.estilo_armario)
         return estilos

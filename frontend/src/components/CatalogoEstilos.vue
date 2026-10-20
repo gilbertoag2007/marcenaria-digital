@@ -2,7 +2,11 @@
 import { computed, onMounted, ref } from "vue";
 
 import { listarConfiguracoesAtivas } from "../services/configuracoesApi";
-import type { Configuracao, EstiloMovel } from "../types/configuracao";
+import type {
+  Configuracao,
+  EstiloMovel,
+  Posicao,
+} from "../types/configuracao";
 import PreviaEstilo2D from "./PreviaEstilo2D.vue";
 import PreviaPortas2D from "./PreviaPortas2D.vue";
 
@@ -10,6 +14,13 @@ const ROTULOS_ESTILO: Record<EstiloMovel, string> = {
   MULTIUSO: "Armário multiuso",
   GUARDA_ROUPA: "Guarda-roupa",
   ARMARIO_AEREO: "Armário aéreo",
+};
+
+const ROTULOS_ACABAMENTO: Record<Posicao, string> = {
+  SUPERIOR: "Superior",
+  INFERIOR: "Inferior",
+  DIREITA: "Direita",
+  ESQUERDA: "Esquerda",
 };
 
 const configuracoes = ref<Configuracao[]>([]);
@@ -26,13 +37,22 @@ const configuracoesAtivas = computed(() =>
 const configuracoesVisiveis = computed(() => {
   const termo = termoBusca.value.trim().toLocaleLowerCase("pt-BR");
   const filtradas = configuracoesAtivas.value.filter((configuracao) => {
-    const conteudo = `${configuracao.id} ${ROTULOS_ESTILO[configuracao.estilo]} ${configuracao.tipo}`;
+    const acabamentos = configuracao.acabamentos
+      .map(
+        (acabamento) =>
+          `${ROTULOS_ACABAMENTO[acabamento.posicao]} ${acabamento.estilo_acabamento}`,
+      )
+      .join(" ");
+    const conteudo = `${configuracao.id} ${ROTULOS_ESTILO[configuracao.estilo_armario]} ${configuracao.tipo} ${acabamentos}`;
     return conteudo.toLocaleLowerCase("pt-BR").includes(termo);
   });
 
   if (ordem.value === "estilo") {
     return [...filtradas].sort((a, b) =>
-      ROTULOS_ESTILO[a.estilo].localeCompare(ROTULOS_ESTILO[b.estilo], "pt-BR"),
+      ROTULOS_ESTILO[a.estilo_armario].localeCompare(
+        ROTULOS_ESTILO[b.estilo_armario],
+        "pt-BR",
+      ),
     );
   }
   return filtradas;
@@ -68,19 +88,19 @@ function formatarIntervalo(minimo: number, maximo: number): string {
   return `${formatarMedida(minimo)}–${formatarMedida(maximo)} cm`;
 }
 
-/** Soma as portas informadas pelos detalhes de uma configuração. */
+/** Conta as portas de uma configuração. */
 function contarPortas(configuracao: Configuracao): number {
-  return configuracao.detalhes.reduce(
-    (total, detalhe) => total + (detalhe.quantidade_portas ?? 0),
-    0,
-  );
+  return configuracao.portas.length;
 }
 
-/** Conta os compartimentos informados nos detalhes de uma configuração. */
+/** Conta os acabamentos de uma configuração, independentemente da posição. */
+function contarAcabamentos(configuracao: Configuracao): number {
+  return configuracao.acabamentos.length;
+}
+
+/** Conta os compartimentos de uma configuração. */
 function contarCompartimentos(configuracao: Configuracao): number {
-  return configuracao.detalhes.filter(
-    (detalhe) => detalhe.tipo === "COMPARTIMENTO",
-  ).length;
+  return configuracao.compartimentos.length;
 }
 
 onMounted(carregarCatalogo);
@@ -145,8 +165,10 @@ onMounted(carregarCatalogo);
               <th>Layout Externo</th>
               <th>Tipo de móvel</th>
               <th>Estilo</th>
-              <th>Faixas dimensionais</th>
-              <th>Elementos</th>
+              <th>Limites</th>
+              <th>Acabamentos</th>
+              <th>Portas</th>
+              <th>Compartimentos</th>
               <th>Status</th>
               <th><span class="somente-leitor">Ações</span></th>
             </tr>
@@ -160,8 +182,9 @@ onMounted(carregarCatalogo);
               <td data-label="Layout Interno">
                 <div class="miniatura">
                   <PreviaEstilo2D
-                    :detalhes="configuracao.detalhes"
-                    :descricao="`Prévia da configuração ${configuracao.id}: ${ROTULOS_ESTILO[configuracao.estilo]}`"
+                    :acabamentos="configuracao.acabamentos"
+                    :compartimentos="configuracao.compartimentos"
+                    :descricao="`Prévia da configuração ${configuracao.id}: ${ROTULOS_ESTILO[configuracao.estilo_armario]}`"
                   />
                   <span>#{{ configuracao.id }}</span>
                 </div>
@@ -169,35 +192,41 @@ onMounted(carregarCatalogo);
               <td data-label="Layout Externo">
                 <div class="miniatura">
                   <PreviaPortas2D
-                    :detalhes="configuracao.detalhes"
-                    :descricao="`Prévia externa da configuração ${configuracao.id}: ${ROTULOS_ESTILO[configuracao.estilo]}`"
+                    :portas="configuracao.portas"
+                    :descricao="`Prévia externa da configuração ${configuracao.id}: ${ROTULOS_ESTILO[configuracao.estilo_armario]}`"
                   />
                 </div>
               </td>
               <td data-label="Tipo de móvel">{{ configuracao.tipo }}</td>
-              <td data-label="Estilo"><strong class="estilo">{{ ROTULOS_ESTILO[configuracao.estilo] }}</strong></td>
-              <td data-label="Faixas dimensionais">
+              <td data-label="Estilo"><strong class="estilo">{{ ROTULOS_ESTILO[configuracao.estilo_armario] }}</strong></td>
+              <td data-label="Limites">
                 <dl class="dimensoes">
                   <div>
                     <dt>A</dt>
-                    <dd>{{ formatarIntervalo(configuracao.altura_minima_cm, configuracao.altura_maxima_cm) }}</dd>
+                    <dd>{{ formatarIntervalo(configuracao.limites.altura_minima_cm, configuracao.limites.altura_maxima_cm) }}</dd>
                   </div>
                   <div>
                     <dt>L</dt>
-                    <dd>{{ formatarIntervalo(configuracao.largura_minima_cm, configuracao.largura_maxima_cm) }}</dd>
+                    <dd>{{ formatarIntervalo(configuracao.limites.largura_minima_cm, configuracao.limites.largura_maxima_cm) }}</dd>
                   </div>
                   <div>
                     <dt>P</dt>
-                    <dd>{{ formatarIntervalo(configuracao.profundidade_minima_cm, configuracao.profundidade_maxima_cm) }}</dd>
+                    <dd>{{ formatarIntervalo(configuracao.limites.profundidade_minima_cm, configuracao.limites.profundidade_maxima_cm) }}</dd>
+                  </div>
+                  <div>
+                    <dt>E</dt>
+                    <dd>{{ formatarIntervalo(configuracao.limites.espessura_minima_cm, configuracao.limites.espessura_maxima_cm) }}</dd>
                   </div>
                 </dl>
               </td>
-              <td data-label="Elementos">
-                {{ contarCompartimentos(configuracao) }}
-                {{ contarCompartimentos(configuracao) === 1 ? "compartimento" : "compartimentos" }}
-                <br />
+              <td data-label="Acabamentos">
+                {{ contarAcabamentos(configuracao) }}
+              </td>
+              <td data-label="Portas">
                 {{ contarPortas(configuracao) }}
-                {{ contarPortas(configuracao) === 1 ? "porta" : "portas" }}
+              </td>
+              <td data-label="Compartimentos">
+                {{ contarCompartimentos(configuracao) }}
               </td>
               <td data-label="Status"><span class="status"><i aria-hidden="true"></i>Disponível</span></td>
               <td data-label="Ações" class="acoes">

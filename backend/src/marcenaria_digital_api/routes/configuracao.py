@@ -23,7 +23,7 @@ estilos_router = APIRouter(prefix="/estilos-armario", tags=["Estilos de armário
     status_code=status.HTTP_201_CREATED,
     summary="Criar configuração de armário",
     description=(
-        "Valida os limites dimensionais, os detalhes e persiste uma nova "
+        "Valida os limites dimensionais, os compartimentos e persiste uma nova "
         "configuração no catálogo JSON."
     ),
     responses={

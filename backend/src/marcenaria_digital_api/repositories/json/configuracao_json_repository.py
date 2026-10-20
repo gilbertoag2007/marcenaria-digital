@@ -15,14 +15,23 @@ else:
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_serializer
 
 from marcenaria_digital_api.entities.configuracao import (
+    AcabamentoExterno,
+    CompartimentoConfiguracao,
     Configuracao,
-    DetalheConfiguracao,
+    ConfiguracaoArmario,
+    Limites,
+    PortaConfiguracao,
 )
 from marcenaria_digital_api.entities.configuracao.validacao import validar_configuracao
 from marcenaria_digital_api.entities.enums import (
     AberturaPorta,
+    Corte,
+    DirecaoHorizontal,
+    DirecaoVertical,
+    Espessura,
+    EstiloAcabamento,
     EstiloMovel,
-    TipoConfiguracao,
+    Posicao,
     TipoMovel,
 )
 from marcenaria_digital_api.entities.exceptions import (
@@ -32,40 +41,147 @@ from marcenaria_digital_api.entities.exceptions import (
 )
 
 
-class _DetalheConfiguracaoJson(BaseModel):
-    """Representa um detalhe no arquivo JSON versionado."""
+class _LimitesJson(BaseModel):
+    """Representa os limites dimensionais no arquivo JSON versionado."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    altura_minima_cm: Decimal = Field(gt=0)
+    altura_maxima_cm: Decimal = Field(gt=0)
+    largura_minima_cm: Decimal = Field(gt=0)
+    largura_maxima_cm: Decimal = Field(gt=0)
+    profundidade_minima_cm: Decimal = Field(gt=0)
+    profundidade_maxima_cm: Decimal = Field(gt=0)
+    espessura_minima_cm: Decimal = Field(gt=0)
+    espessura_maxima_cm: Decimal = Field(gt=0)
+
+    @field_serializer(
+        "altura_minima_cm",
+        "altura_maxima_cm",
+        "largura_minima_cm",
+        "largura_maxima_cm",
+        "profundidade_minima_cm",
+        "profundidade_maxima_cm",
+        "espessura_minima_cm",
+        "espessura_maxima_cm",
+        when_used="json",
+    )
+    def serializar_medida_decimal(self, valor: Decimal) -> float:
+        """Serializa medidas decimais como números no arquivo JSON."""
+        return float(valor)
+
+    def para_entidade(self) -> Limites:
+        """Converte o registro persistido em objeto de valor."""
+        return Limites(**self.model_dump())
+
+    @classmethod
+    def da_entidade(cls, limites: Limites) -> "_LimitesJson":
+        """Cria um registro persistível a partir do objeto de valor."""
+        return cls(
+            altura_minima_cm=limites.altura_minima_cm,
+            altura_maxima_cm=limites.altura_maxima_cm,
+            largura_minima_cm=limites.largura_minima_cm,
+            largura_maxima_cm=limites.largura_maxima_cm,
+            profundidade_minima_cm=limites.profundidade_minima_cm,
+            profundidade_maxima_cm=limites.profundidade_maxima_cm,
+            espessura_minima_cm=limites.espessura_minima_cm,
+            espessura_maxima_cm=limites.espessura_maxima_cm,
+        )
+
+
+class _AcabamentoExternoJson(BaseModel):
+    """Representa um acabamento externo no arquivo JSON versionado."""
 
     model_config = ConfigDict(extra="forbid")
 
     id: int = Field(gt=0, strict=True)
-    tipo: TipoConfiguracao
+    tipo_acabamento: Posicao
+    estilo_acabamento: EstiloAcabamento
+    extensao_cm: float = Field(gt=0, strict=True)
+    espessura: Espessura
+    corte_extremidade_1: Corte
+    corte_extremidade_2: Corte
+
+    def para_entidade(self) -> AcabamentoExterno:
+        """Converte o registro persistido em entidade."""
+        return AcabamentoExterno(
+            id=self.id,
+            posicao=self.tipo_acabamento,
+            estilo_acabamento=self.estilo_acabamento,
+            extensao_cm=self.extensao_cm,
+            espessura=self.espessura,
+            corte_extremidade_1=self.corte_extremidade_1,
+            corte_extremidade_2=self.corte_extremidade_2,
+        )
+
+    @classmethod
+    def da_entidade(cls, acabamento: AcabamentoExterno) -> "_AcabamentoExternoJson":
+        """Cria um registro persistível a partir de uma entidade."""
+        return cls(
+            id=acabamento.id,
+            tipo_acabamento=acabamento.posicao,
+            estilo_acabamento=acabamento.estilo_acabamento,
+            extensao_cm=acabamento.extensao_cm,
+            espessura=acabamento.espessura,
+            corte_extremidade_1=acabamento.corte_extremidade_1,
+            corte_extremidade_2=acabamento.corte_extremidade_2,
+        )
+
+
+class _CompartimentoConfiguracaoJson(BaseModel):
+    """Representa um compartimento no arquivo JSON versionado."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: int = Field(gt=0, strict=True)
     percentual_ocupacao_vertical: float = Field(gt=0, le=100, strict=True)
     percentual_ocupacao_horizontal: float = Field(gt=0, le=100, strict=True)
-    quantidade_portas: int | None = Field(default=None, ge=0, le=10, strict=True)
-    abertura_porta: AberturaPorta | None = None
     em_cima_de_id: int | None = Field(default=None, gt=0, strict=True)
     embaixo_de_id: int | None = Field(default=None, gt=0, strict=True)
     a_direita_de_id: int | None = Field(default=None, gt=0, strict=True)
     a_esquerda_de_id: int | None = Field(default=None, gt=0, strict=True)
 
-    def para_entidade(self) -> DetalheConfiguracao:
-        """Converte o registro persistido em entidade."""
-        return DetalheConfiguracao(**self.model_dump())
+    def para_entidade(self) -> CompartimentoConfiguracao:
+        """Converte o registro persistido em entidade de compartimento."""
+        return CompartimentoConfiguracao(**self.model_dump())
 
     @classmethod
-    def da_entidade(cls, detalhe: DetalheConfiguracao) -> "_DetalheConfiguracaoJson":
-        """Cria um registro persistível a partir de uma entidade."""
+    def da_entidade(
+        cls, compartimento: CompartimentoConfiguracao
+    ) -> "_CompartimentoConfiguracaoJson":
+        """Cria um registro persistível a partir de um compartimento."""
         return cls(
-            id=detalhe.id,
-            tipo=detalhe.tipo,
-            percentual_ocupacao_vertical=detalhe.percentual_ocupacao_vertical,
-            percentual_ocupacao_horizontal=detalhe.percentual_ocupacao_horizontal,
-            quantidade_portas=detalhe.quantidade_portas,
-            abertura_porta=detalhe.abertura_porta,
-            em_cima_de_id=detalhe.em_cima_de_id,
-            embaixo_de_id=detalhe.embaixo_de_id,
-            a_direita_de_id=detalhe.a_direita_de_id,
-            a_esquerda_de_id=detalhe.a_esquerda_de_id,
+            id=compartimento.id,
+            percentual_ocupacao_vertical=compartimento.percentual_ocupacao_vertical,
+            percentual_ocupacao_horizontal=compartimento.percentual_ocupacao_horizontal,
+            em_cima_de_id=compartimento.em_cima_de_id,
+            embaixo_de_id=compartimento.embaixo_de_id,
+            a_direita_de_id=compartimento.a_direita_de_id,
+            a_esquerda_de_id=compartimento.a_esquerda_de_id,
+        )
+
+
+class _PortaConfiguracaoJson(_CompartimentoConfiguracaoJson):
+    """Representa uma porta no arquivo JSON versionado."""
+
+    abertura: AberturaPorta
+
+    def para_entidade(self) -> PortaConfiguracao:
+        """Converte o registro persistido em entidade de porta."""
+        return PortaConfiguracao(**self.model_dump())
+
+    @classmethod
+    def da_entidade(cls, porta: PortaConfiguracao) -> "_PortaConfiguracaoJson":
+        """Cria um registro persistível a partir de uma porta."""
+        return cls(
+            id=porta.id,
+            percentual_ocupacao_vertical=porta.percentual_ocupacao_vertical,
+            percentual_ocupacao_horizontal=porta.percentual_ocupacao_horizontal,
+            abertura=porta.abertura,
+            em_cima_de_id=porta.em_cima_de_id,
+            embaixo_de_id=porta.embaixo_de_id,
+            a_direita_de_id=porta.a_direita_de_id,
+            a_esquerda_de_id=porta.a_esquerda_de_id,
         )
 
 
@@ -77,61 +193,59 @@ class _ConfiguracaoJson(BaseModel):
     id: int = Field(gt=0, strict=True)
     tipo: TipoMovel
     estilo: EstiloMovel
-    altura_minima_cm: Decimal = Field(gt=0)
-    altura_maxima_cm: Decimal = Field(gt=0)
-    largura_minima_cm: Decimal = Field(gt=0)
-    largura_maxima_cm: Decimal = Field(gt=0)
-    profundidade_minima_cm: Decimal = Field(gt=0)
-    profundidade_maxima_cm: Decimal = Field(gt=0)
+    limites: _LimitesJson
     ativo: bool = Field(strict=True)
-    detalhes: list[_DetalheConfiguracaoJson] = Field(min_length=1)
-
-    @field_serializer(
-        "altura_minima_cm",
-        "altura_maxima_cm",
-        "largura_minima_cm",
-        "largura_maxima_cm",
-        "profundidade_minima_cm",
-        "profundidade_maxima_cm",
-        when_used="json",
-    )
-    def serializar_medida_decimal(self, valor: Decimal) -> float:
-        """Serializa medidas decimais como números no arquivo JSON."""
-        return float(valor)
+    direcao_vertical: DirecaoVertical
+    direcao_horizontal: DirecaoHorizontal
+    acabamentos: list[_AcabamentoExternoJson] = Field(default_factory=list)
+    compartimentos: list[_CompartimentoConfiguracaoJson] = Field(min_length=1)
+    portas: list[_PortaConfiguracaoJson] = Field(default_factory=list)
 
     def para_entidade(self) -> Configuracao:
         """Converte o registro persistido em entidade."""
-        return Configuracao(
+        if self.tipo is not TipoMovel.ARMARIO:
+            raise ValueError(f"tipo de configuração não suportado: {self.tipo}")
+        return ConfiguracaoArmario(
             id=self.id,
-            tipo=self.tipo,
-            estilo=self.estilo,
-            altura_minima_cm=self.altura_minima_cm,
-            altura_maxima_cm=self.altura_maxima_cm,
-            largura_minima_cm=self.largura_minima_cm,
-            largura_maxima_cm=self.largura_maxima_cm,
-            profundidade_minima_cm=self.profundidade_minima_cm,
-            profundidade_maxima_cm=self.profundidade_maxima_cm,
+            limites=self.limites.para_entidade(),
             ativo=self.ativo,
-            detalhes=[detalhe.para_entidade() for detalhe in self.detalhes],
+            direcao_vertical=self.direcao_vertical,
+            direcao_horizontal=self.direcao_horizontal,
+            estilo_armario=self.estilo,
+            acabamentos=[
+                acabamento.para_entidade() for acabamento in self.acabamentos
+            ],
+            compartimentos=[
+                compartimento.para_entidade()
+                for compartimento in self.compartimentos
+            ],
+            portas=[porta.para_entidade() for porta in self.portas],
         )
 
     @classmethod
     def da_entidade(cls, configuracao: Configuracao) -> "_ConfiguracaoJson":
         """Cria um registro persistível a partir de uma entidade."""
+        if not isinstance(configuracao, ConfiguracaoArmario):
+            raise ValueError("somente configurações de armário podem ser persistidas")
         return cls(
             id=configuracao.id,
             tipo=configuracao.tipo,
-            estilo=configuracao.estilo,
-            altura_minima_cm=configuracao.altura_minima_cm,
-            altura_maxima_cm=configuracao.altura_maxima_cm,
-            largura_minima_cm=configuracao.largura_minima_cm,
-            largura_maxima_cm=configuracao.largura_maxima_cm,
-            profundidade_minima_cm=configuracao.profundidade_minima_cm,
-            profundidade_maxima_cm=configuracao.profundidade_maxima_cm,
+            estilo=configuracao.estilo_armario,
+            limites=_LimitesJson.da_entidade(configuracao.limites),
             ativo=configuracao.ativo,
-            detalhes=[
-                _DetalheConfiguracaoJson.da_entidade(detalhe)
-                for detalhe in configuracao.detalhes
+            direcao_vertical=configuracao.direcao_vertical,
+            direcao_horizontal=configuracao.direcao_horizontal,
+            acabamentos=[
+                _AcabamentoExternoJson.da_entidade(acabamento)
+                for acabamento in configuracao.acabamentos
+            ],
+            compartimentos=[
+                _CompartimentoConfiguracaoJson.da_entidade(compartimento)
+                for compartimento in configuracao.compartimentos
+            ],
+            portas=[
+                _PortaConfiguracaoJson.da_entidade(porta)
+                for porta in configuracao.portas
             ],
         )
 

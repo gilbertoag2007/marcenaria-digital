@@ -1,24 +1,36 @@
-from dataclasses import dataclass
-from decimal import Decimal
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 
-from marcenaria_digital_api.entities.configuracao.detalhes_configuracao import (
-    DetalheConfiguracao,
+from marcenaria_digital_api.entities.configuracao.limites import Limites
+from marcenaria_digital_api.entities.enums import (
+    DirecaoHorizontal,
+    DirecaoVertical,
+    TipoMovel,
 )
-from marcenaria_digital_api.entities.enums import EstiloMovel, TipoMovel
 
 
 @dataclass(frozen=True, slots=True)
-class Configuracao:
-    """Representa uma configuração reutilizável de móvel."""
+class Configuracao(ABC):
+    """Define os dados comuns a qualquer configuração de móvel."""
 
-    id: int
-    tipo: TipoMovel
-    estilo: EstiloMovel
-    altura_minima_cm: Decimal
-    altura_maxima_cm: Decimal
-    largura_minima_cm: Decimal
-    largura_maxima_cm: Decimal
-    profundidade_minima_cm: Decimal
-    profundidade_maxima_cm: Decimal
-    ativo: bool
-    detalhes: list[DetalheConfiguracao]
+    id: int = field(
+        metadata={"description": "Identificador único da configuração."}
+    )
+    limites: Limites = field(
+        metadata={"description": "Limites mínimos e máximos de altura, largura, profundidade permitidos pela configuração."}
+    )
+    ativo: bool = field(
+        metadata={"description": "Indica se a configuração está disponível para uso."}
+    )
+    direcao_vertical: DirecaoVertical = field(
+        metadata={"description": "Direção vertical dos compartimentos."}
+    )
+    direcao_horizontal: DirecaoHorizontal = field(
+        metadata={"description": "Direção horizontal dos compartimentos."}
+    )
+
+    @property
+    @abstractmethod
+    def tipo(self) -> TipoMovel:
+        """Informa o tipo de móvel representado pela configuração concreta."""
+        raise NotImplementedError

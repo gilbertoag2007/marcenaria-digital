@@ -1,6 +1,6 @@
 {
   "spec": "fase-1-aceite",
-  "versao": 3,
+  "versao": 9,
   "fase": 1,
   "cenarios": [
     {
@@ -59,15 +59,27 @@
     },
     {
       "id": "AC10",
-      "dado": "um COMPARTIMENTO com quantidade zero e abertura nula ou quantidade entre 1 e 10 com abertura válida",
+      "dado": "uma configuração com itens nas coleções compartimentos e portas",
       "quando": "a configuração for criada e recuperada",
-      "entao": "a API aceita e preserva os dois atributos sem perda de dados"
+      "entao": "a API aceita e preserva a abertura da porta sem perda de dados"
     },
     {
       "id": "AC11",
-      "dado": "um detalhe com quantidade fora de 0 a 10, combinação inválida de quantidade e abertura, ou atributos de porta aplicados ao tipo PORTA",
+      "dado": "uma porta com valor de abertura desconhecido",
       "quando": "a criação for solicitada",
       "entao": "a API responde 422 e o arquivo não é alterado"
+    },
+    {
+      "id": "AC12",
+      "dado": "uma configuração com limites de altura, largura, profundidade e espessura agrupados no objeto limites",
+      "quando": "a configuração for criada e recuperada",
+      "entao": "a API e o repositório preservam os oito valores e rejeitam intervalos invertidos"
+    },
+    {
+      "id": "AC13",
+      "dado": "um request que omite acabamentos e portas e fornece ao menos um compartimento",
+      "quando": "a configuração for criada",
+      "entao": "a API aceita as coleções opcionais vazias e a entidade mantém os nomes estilo_armario e posicao para os campos públicos estilo e acabamentos[].tipo_acabamento"
     }
   ]
 }

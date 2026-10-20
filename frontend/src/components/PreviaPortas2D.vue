@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-import type { DetalheConfiguracao } from "../types/configuracao";
+import type { PortaConfiguracao } from "../types/configuracao";
 import { calcularLayoutPortasPrevia } from "../utils/layoutPrevia";
 
 const props = defineProps<{
-  detalhes: DetalheConfiguracao[];
+  portas: PortaConfiguracao[];
   descricao: string;
 }>();
 
-const portas = computed(() => calcularLayoutPortasPrevia(props.detalhes));
+const retangulos = computed(() => calcularLayoutPortasPrevia(props.portas));
 </script>
 
 <template>
@@ -23,7 +23,7 @@ const portas = computed(() => calcularLayoutPortasPrevia(props.detalhes));
     <title>{{ descricao }}</title>
     <rect class="estrutura" x="1" y="1" width="98" height="98" rx="2" />
     <rect
-      v-for="porta in portas"
+      v-for="porta in retangulos"
       :key="porta.id"
       class="porta-externa"
       :x="2 + porta.x * 0.96"
